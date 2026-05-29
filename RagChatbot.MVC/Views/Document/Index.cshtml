@@ -1,0 +1,67 @@
+﻿@model IEnumerable<RagChatbot.DAL.Entities.Document>
+@{
+    var subject = ViewBag.Subject as RagChatbot.DAL.Entities.Subject;
+    ViewData["Title"] = "Tài liệu môn " + subject?.Code;
+}
+
+<div class="container mt-4">
+    <h2>Quản lý Tài liệu: <span class="text-primary">@subject?.Code - @subject?.Name</span></h2>
+
+    <div class="mb-3 mt-4">
+        <a asp-action="Create" asp-route-subjectId="@subject?.Id" class="btn btn-success">Upload Tài Liệu Mới</a>
+        <a asp-controller="Subject" asp-action="Index" class="btn btn-secondary">Trở về Danh sách Môn học</a>
+    </div>
+
+    <table class="table table-bordered table-striped align-middle shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Tên File</th>
+                <th class="text-center">Trạng thái</th>
+                <th class="text-center">Ngày Tải Lên</th>
+                <th class="text-center" style="width: 180px;">Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <a asp-action="ViewDoc" asp-route-id="@item.Id" class="text-decoration-none fw-bold text-primary">
+                            @item.FileName
+                        </a>
+                    </td>
+                    <td class="text-center">
+                        @if (item.Status == RagChatbot.DAL.Entities.DocumentStatus.Pending)
+                        {
+                            <span class="badge bg-warning text-dark">Đang chờ AI đọc</span>
+                        }
+                        else if (item.Status == RagChatbot.DAL.Entities.DocumentStatus.Completed)
+                        {
+
+                            <span class="badge bg-success">AI đã học xong</span>
+                        }
+                        else
+                        {
+
+                            <span class="badge bg-danger">Lỗi đọc file</span>
+                        }
+                    </td>
+                    <td class="text-center">@item.UploadedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a asp-action="Download" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
+                                Tải về
+                            </a>
+
+                            <form asp-action="Delete" method="post" class="m-0" onsubmit="return confirm('Xóa file này khỏi hệ thống?');">
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <input type="hidden" name="subjectId" value="@item.SubjectId" />
+                                <button type="submit" class="btn btn-sm btn-danger">Xoá</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
