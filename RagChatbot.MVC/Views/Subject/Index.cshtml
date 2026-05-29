@@ -1,0 +1,37 @@
+﻿@model IEnumerable<RagChatbot.DAL.Entities.Subject>
+@{
+    ViewData["Title"] = "Danh sách Môn học";
+}
+
+<div class="container mt-4">
+    <h2>Danh sách Môn học</h2>
+    <a asp-action="Create" class="btn btn-primary mb-3">Thêm môn học mới</a>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Mã Môn</th>
+                <th>Tên Môn</th>
+                <th>Ngày Tạo</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Code</td>
+                    <td>@item.Name</td>
+                    <td>@item.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Sửa</a>
+
+                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xoá môn học này không?');">
+                            <button type="submit" class="btn btn-sm btn-danger">Xoá</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

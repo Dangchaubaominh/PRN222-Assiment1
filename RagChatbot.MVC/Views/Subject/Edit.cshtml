@@ -1,0 +1,34 @@
+﻿@model RagChatbot.DAL.Entities.Subject
+@{
+    ViewData["Title"] = "Sửa Môn học";
+}
+
+<div class="container mt-4">
+    <h2>Sửa thông tin Môn học</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="CreatedAt" />
+
+                <div class="form-group mb-3">
+                    <label asp-for="Code" class="control-label fw-bold">Mã Môn</label>
+                    <input asp-for="Code" class="form-control" />
+                    <span asp-validation-for="Code" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Name" class="control-label fw-bold">Tên Môn</label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Cập nhật dữ liệu</button>
+                    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
