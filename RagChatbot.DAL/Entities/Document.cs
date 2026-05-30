@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,20 +12,16 @@ namespace RagChatbot.DAL.Entities
     public class Document
     {
         [Key]
-        [Column(TypeName = "uuid")]
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        [Column(TypeName = "uuid")]
         public Guid SubjectId { get; set; }
 
         [Required]
         [StringLength(500)]
-        [Column(TypeName = "varchar(500)")]
         public string FileName { get; set; }
 
         [Required]
         [StringLength(1000)]
-        [Column(TypeName = "varchar(1000)")]
         public string FilePath { get; set; }
 
         public DocumentStatus Status { get; set; } = DocumentStatus.Pending;

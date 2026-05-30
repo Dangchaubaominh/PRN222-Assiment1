@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using RagChatbot.BLL.Services.Interfaces;
 using RagChatbot.DAL.Entities;
 using RagChatbot.DAL.Repositories.Interfaces;
@@ -11,10 +12,12 @@ namespace RagChatbot.BLL.Services.Implements
     public class DocumentService : IDocumentService
     {
         private readonly IDocumentRepository _documentRepository;
+        private readonly IServiceProvider _serviceProvider;
 
-        public DocumentService(IDocumentRepository documentRepository)
+        public DocumentService(IDocumentRepository documentRepository, IServiceProvider serviceProvider)
         {
             _documentRepository = documentRepository;
+            _serviceProvider = serviceProvider;
         }
 
         public IEnumerable<Document> GetDocumentsBySubject(Guid subjectId)
@@ -59,6 +62,19 @@ namespace RagChatbot.BLL.Services.Implements
                 };
 
                 _documentRepository.Add(document);
+
+                // 5. Tự động chạy RAG pipeline (Chunking & Embedding) cho tài liệu mới
+                // Tạo một Scope mới trong luồng ngầm để tránh lỗi Disposed DbContext khi request kết thúc
+                var serviceProvider = _serviceProvider;
+                _ = Task.Run(async () =>
+                {
+                    using (var scope = serviceProvider.CreateScope())
+                    {
+                        var scopedRagService = scope.ServiceProvider.GetRequiredService<IRagService>();
+                        await scopedRagService.ProcessDocumentAsync(document.Id, physicalFilePath);
+                    }
+                });
+
                 return true;
             }
             catch

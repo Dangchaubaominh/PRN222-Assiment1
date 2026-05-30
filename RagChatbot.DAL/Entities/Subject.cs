@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -13,17 +13,14 @@ namespace RagChatbot.DAL.Entities
     public class Subject
     {
         [Key]
-        [Column(TypeName = "uuid")]
         public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required(ErrorMessage = "Mã môn học không được để trống.")]
         [StringLength(50)]
-        [Column(TypeName = "varchar(50)")]
         public string Code { get; set; }
 
         [Required(ErrorMessage = "Tên môn học không được để trống.")]
         [StringLength(255)]
-        [Column(TypeName = "varchar(255)")]
         public string Name { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

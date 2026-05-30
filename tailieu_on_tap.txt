@@ -1,0 +1,57 @@
+TÀI LIỆU ÔN TẬP MÔN HỌC: LẬP TRÌNH C# VÀ KIẾN TRÚC PHẦN MỀM
+
+CHƯƠNG 1: NGÔN NGỮ LẬP TRÌNH C# VÀ HƯỚNG ĐỐI TƯỢNG (OOP)
+C# là ngôn ngữ của Microsoft thiết kế cho phát triển ứng dụng doanh nghiệp và web. C# chạy trên nền tảng .NET framework, là một ngôn ngữ mạnh mẽ hỗ trợ kiểu tĩnh và hướng đối tượng hoàn toàn.
+Bốn tính chất cốt lõi của OOP bao gồm:
+1. Tính đóng gói (Encapsulation): Đóng gói ngăn chặn truy cập trực tiếp từ bên ngoài vào dữ liệu nội bộ. Nó giúp che giấu thông tin chi tiết bằng cách đặt trạng thái là private và truy cập thông qua public property.
+2. Tính kế thừa (Inheritance): Kế thừa giúp tái sử dụng mã nguồn giữa các lớp có quan hệ cha-con. Lớp con kế thừa lại toàn bộ thuộc tính và phương thức được phép của lớp cha.
+3. Tính đa hình (Polymorphism): Đa hình giúp một phương thức có nhiều hình thức triển khai khác nhau ở lớp con. Cho phép các đối tượng khác nhau phản hồi cùng một thông điệp theo các cách khác nhau thông qua virtual/override.
+4. Tính trừu tượng (Abstraction): Trừu tượng hóa giúp ẩn đi sự phức tạp và chỉ hiển thị các tính năng cần thiết thông qua việc định nghĩa các interface hoặc abstract class.
+Interface định nghĩa hợp đồng hành vi mà các class phải tuân theo và hỗ trợ đa kế thừa. Abstract class định nghĩa một bản thiết kế chung và chỉ hỗ trợ đơn kế thừa.
+Từ khóa virtual cho phép phương thức được đa hình hóa ở các lớp dẫn xuất và cho phép lớp con override (ghi đè) lại logic.
+Dependency Injection (DI) giúp quản lý vòng đời dịch vụ và giảm liên kết cứng giữa các thành phần thông qua việc tiêm các phụ thuộc vào constructor.
+Garbage Collector (GC) trong .NET dọn dẹp các đối tượng mồ côi không còn được tham chiếu trong bộ nhớ heap để tránh rò rỉ bộ nhớ.
+Value Type (struct, int) lưu dữ liệu trực tiếp trên stack, trong khi Reference Type (class, string) lưu địa chỉ trên stack trỏ đến đối tượng nằm trên heap.
+
+CHƯƠNG 2: KIẾN TRÚC 3 LỚP (3-LAYER ARCHITECTURE)
+Kiến trúc 3 lớp phân tách trách nhiệm hệ thống thành PL, BLL và DAL:
+1. Presentation Layer (PL): Tương tác trực tiếp với người dùng qua Web UI, Mobile App hoặc Desktop Window. Nó không được thao tác trực tiếp với Database mà phải gọi BLL.
+2. Business Logic Layer (BLL): Chứa logic nghiệp vụ cốt lõi, kiểm tra ràng buộc logic của hệ thống. Nhận dữ liệu từ DAL, tính toán xử lý và gửi trả lại cho PL.
+3. Data Access Layer (DAL): Tương tác trực tiếp với Database thông qua EF Core hoặc ADO.NET để thực hiện truy vấn và trả về dữ liệu Entities/DTO.
+Kết nối trực tiếp từ Controller sang DB vi phạm kiến trúc 3 lớp và làm tăng sự phụ thuộc chặt chẽ, khiến hệ thống khó kiểm thử và bảo trì.
+Repository cung cấp giao diện dạng bộ sưu tập (collection-like) để truy xuất Entities, đóng vai trò là một lớp trung gian giữa Business Logic và nguồn dữ liệu vật lý.
+EF Core loại bỏ nhu cầu viết hầu hết các mã SQL truy vấn thủ công bằng cách tự động ánh xạ quan hệ đối tượng.
+Lưu trữ Connection String trong appsettings.json giúp cấu hình linh hoạt theo môi trường mà không cần biên dịch lại mã nguồn.
+Unit of Work nhóm nhiều thao tác repository vào một transaction duy nhất để đảm bảo tất cả cập nhật database được lưu trữ đồng bộ.
+DTO (Data Transfer Object) tối ưu hóa gói dữ liệu truyền tải và tăng tính bảo mật bằng cách vận chuyển dữ liệu giữa các tầng mà không làm lộ cấu trúc thực tế của database.
+
+CHƯƠNG 3: MÔ HÌNH MVC (MODEL - VIEW - CONTROLLER)
+MVC là kiến trúc giao diện tách biệt Dữ liệu, Giao diện và Luồng điều khiển:
+1. Model: Đại diện cho dữ liệu và trạng thái nghiệp vụ.
+2. View: Chịu trách nhiệm render giao diện HTML gửi về cho trình duyệt.
+3. Controller: Ánh xạ URL request thành phương thức xử lý cụ thể, tiếp nhận dữ liệu và điều phối BLL/View.
+Razor Pages là mô hình page-focused, còn MVC là controller-focused.
+Routing ánh xạ URL request thành phương thức xử lý cụ thể của Controller (ví dụ: {controller}/{action}/{id}).
+Model binding chuyển đổi HTTP data (Form, Query) thành các đối tượng C# mạnh kiểu trong action parameters.
+Ràng buộc kiểm dữ liệu đầu vào của Model được xác thực thông qua ModelState.
+ViewBag dùng cú pháp động, ViewData dùng cú pháp mảng liên kết (dictionary key/value) để truyền dữ liệu ngắn hạn từ Controller sang View.
+TempData lưu dữ liệu qua phiên làm việc ngắn hạn (thường dùng khi Redirect) và tự xóa sau khi được đọc.
+Middleware xử lý tuần tự Request/Response trong pipeline của ASP.NET Core như Authenticate, Logging, Static Files.
+
+CHƯƠNG 4: RAG (RETRIEVAL-AUGMENTED GENERATION) VÀ NLP
+RAG cải tiến LLM bằng cách cung cấp dữ liệu thực tế từ tài liệu bên ngoài vào prompt ngữ cảnh.
+Fine-tuning huấn luyện lại các tham số mô hình để tối ưu cho tác vụ cụ thể.
+RAG giống như việc cho phép học sinh mở sách khi làm bài thi, trong khi Fine-tuning giống như việc bắt học sinh học thuộc lòng bài học.
+Embedding chuyển văn bản thành vector số đại diện cho nghĩa ngữ cảnh trong không gian nhiều chiều.
+Cosine similarity là tỷ số tích vô hướng chia tích độ dài của hai vector để tìm kiếm độ tương đồng nghĩa ngữ nghĩa.
+Chunking chia tài liệu lớn thành các phần nhỏ giúp tối ưu hóa việc tìm kiếm và xử lý AI, tránh pha loãng ngữ nghĩa.
+Recursive chunking chia nhỏ văn bản đệ quy giữ tính toàn vẹn của câu và đoạn bằng cách split theo các ký tự xuống dòng, dấu câu và khoảng trắng.
+RAGAS đo lường chất lượng hệ thống RAG qua 3 hệ số chính:
+1. Faithfulness: Đảm bảo AI không sinh ra ảo giác ngoài tài liệu cung cấp (câu trả lời hoàn toàn dựa vào context).
+2. Answer Relevance: Đo lường độ liên quan giữa câu trả lời sinh ra và câu hỏi của người dùng.
+3. Context Recall: Đánh giá khả năng lấy đúng và đủ tài liệu của bộ truy xuất để trả lời câu hỏi.
+Session history lưu vết cuộc trò chuyện để bot tham chiếu các tin nhắn trước.
+PhoBERT là mô hình biểu diễn từ tối ưu cho NLP tiếng Việt. bge-m3 hỗ trợ tìm kiếm ngữ nghĩa đa ngữ đa tính năng và độ dài văn bản lớn. text-embedding-3-small là mô hình embedding thương mại của OpenAI. E5 là mô hình embedding học máy mã nguồn mở hỗ trợ nhiều ngôn ngữ.
+Giới hạn phạm vi bằng cách lọc similarity score và thiết kế System Prompt chặt chẽ. Cung cấp Grounding Context giúp định hướng AI tạo câu trả lời dựa trên sự thật thay vì ảo giác.
+Độ trễ tổng trong RAG bằng thời gian embedding + thời gian retrieval + thời gian sinh văn bản.
+Vector database tối ưu cho lưu trữ và tìm kiếm vector tương đồng ngữ nghĩa. Phân nhóm tài liệu theo môn học giúp giới hạn phạm vi tìm kiếm ngữ cảnh chính xác.

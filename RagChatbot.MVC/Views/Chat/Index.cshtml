@@ -1,0 +1,540 @@
+@model RagChatbot.DAL.Entities.ChatSession
+@{
+    ViewData["Title"] = "Hỏi đáp AI";
+    var subjects = ViewBag.Subjects as List<RagChatbot.DAL.Entities.Subject> ?? new List<RagChatbot.DAL.Entities.Subject>();
+    var sessions = ViewBag.Sessions as List<RagChatbot.DAL.Entities.ChatSession> ?? new List<RagChatbot.DAL.Entities.ChatSession>();
+    var activeSubjectId = (Guid)ViewBag.ActiveSubjectId;
+}
+
+<style>
+    .chat-layout {
+        height: calc(100vh - 170px);
+        display: flex;
+        gap: 20px;
+    }
+
+    .sidebar-card {
+        width: 320px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .chat-area {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .sidebar-header {
+        padding: 16px;
+        border-bottom: 1px solid #e2e8f0;
+        background: #f8fafc;
+    }
+
+    .list-group-custom {
+        overflow-y: auto;
+        flex-grow: 1;
+    }
+
+    .session-item {
+        padding: 12px 16px;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-decoration: none;
+        color: #334155;
+        transition: all 0.2s ease;
+    }
+
+    .session-item:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+    }
+
+    .session-item.active-session {
+        background: rgba(79, 70, 229, 0.08);
+        border-left: 4px solid #4f46e5;
+        color: #4f46e5;
+        font-weight: 600;
+    }
+
+    .chat-header {
+        padding: 16px 24px;
+        border-bottom: 1px solid #e2e8f0;
+        background: #f8fafc;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chat-messages {
+        flex-grow: 1;
+        padding: 24px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        background: #f8fafc;
+    }
+
+    .message-bubble {
+        max-width: 70%;
+        padding: 14px 18px;
+        border-radius: 16px;
+        position: relative;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        animation: fadeIn 0.3s ease;
+    }
+
+    .message-user {
+        background: #4f46e5;
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 4px;
+    }
+
+    .message-bot {
+        background: white;
+        color: #0f172a;
+        align-self: flex-start;
+        border-bottom-left-radius: 4px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .message-time {
+        font-size: 0.75rem;
+        margin-top: 6px;
+        text-align: right;
+        opacity: 0.7;
+    }
+
+    .citation-container {
+        margin-top: 10px;
+        padding-top: 8px;
+        border-top: 1px dashed #e2e8f0;
+        font-size: 0.8rem;
+    }
+
+    .citation-badge {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(79, 70, 229, 0.06);
+        color: #4f46e5;
+        border: 1px solid rgba(79, 70, 229, 0.15);
+        border-radius: 6px;
+        padding: 2px 8px;
+        margin-right: 6px;
+        margin-top: 4px;
+        font-weight: 500;
+    }
+
+    .chat-input-container {
+        padding: 20px 24px;
+        border-top: 1px solid #e2e8f0;
+        background: white;
+    }
+
+    .input-wrapper {
+        display: flex;
+        gap: 12px;
+        position: relative;
+    }
+
+    .chat-input {
+        flex-grow: 1;
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        padding: 12px 18px;
+        outline: none;
+        resize: none;
+        height: 50px;
+        max-height: 120px;
+        font-family: inherit;
+        transition: border-color 0.2s ease;
+    }
+
+    .chat-input:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .btn-send {
+        background: #4f46e5;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 0 20px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .btn-send:hover {
+        background: #4338ca;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+    }
+
+    .btn-send:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+    }
+
+    /* Typing indicator animation */
+    .typing-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 10px 18px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        border-bottom-left-radius: 4px;
+        align-self: flex-start;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+
+    .typing-dot {
+        width: 6px;
+        height: 6px;
+        background: #94a3b8;
+        border-radius: 50%;
+        animation: typing 1.4s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @@keyframes typing {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-4px); }
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="chat-layout">
+    <!-- Sidebar: Subjects & Conversations -->
+    <div class="sidebar-card">
+        <!-- Subject Switcher -->
+        <div class="sidebar-header border-bottom">
+            <label class="form-label fw-bold text-secondary text-uppercase mb-2" style="font-size: 0.75rem;">Môn Học Trực Thuộc</label>
+            <select id="subjectSelect" class="form-select rounded-3">
+                @foreach (var sub in subjects)
+                {
+                    if (sub.Id == activeSubjectId)
+                    {
+                        <option value="@sub.Id" selected>@sub.Code - @sub.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@sub.Id">@sub.Code - @sub.Name</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <!-- Session List -->
+        <div class="sidebar-header d-flex justify-content-between align-items-center">
+            <span class="fw-bold" style="font-size: 0.9rem;">Phiên Hỏi Đáp</span>
+            <button class="btn btn-sm btn-outline-primary rounded-3" data-bs-toggle="modal" data-bs-target="#newSessionModal">
+                <i class="bi bi-plus-lg"></i> Mới
+            </button>
+        </div>
+
+        <div class="list-group-custom">
+            @if (sessions.Any())
+            {
+                foreach (var sess in sessions)
+                {
+                    string activeClass = Model != null && Model.Id == sess.Id ? "active-session" : "";
+                    <div class="position-relative">
+                        <a href="?subjectId=@activeSubjectId&sessionId=@sess.Id" class="session-item @activeClass">
+                            <span class="text-truncate me-2" style="max-width: 200px;">
+                                <i class="bi bi-chat-left-text me-2"></i>@sess.Title
+                            </span>
+                            <form asp-action="DeleteSession" method="post" class="m-0" onsubmit="return confirm('Bạn muốn xóa cuộc hội thoại này?');">
+                                <input type="hidden" name="sessionId" value="@sess.Id" />
+                                <input type="hidden" name="subjectId" value="@activeSubjectId" />
+                                <button type="submit" class="btn btn-link btn-sm text-danger p-0 border-0" title="Xóa">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </a>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center text-muted p-4">
+                    <i class="bi bi-chat-square-dots display-6 d-block mb-2"></i>
+                    Chưa có cuộc trò chuyện nào. Hãy tạo phiên mới!
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Main Chat Interface -->
+    <div class="chat-area">
+        @if (Model != null)
+        {
+            <div class="chat-header">
+                <div>
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-chat-right-quote me-2 text-primary"></i>@Model.Title</h5>
+                    <small class="text-muted">Ngày bắt đầu: @Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
+                </div>
+                <span class="badge bg-indigo text-white px-3 py-2 rounded-pill" style="background-color: #6366f1;">
+                    <i class="bi bi-shield-check me-1"></i> RAG Guarded Scope
+                </span>
+            </div>
+
+            <!-- Messages Stream -->
+            <div class="chat-messages" id="messagesBox">
+                @if (Model.Messages != null && Model.Messages.Any())
+                {
+                    foreach (var msg in Model.Messages.OrderBy(m => m.CreatedAt))
+                    {
+                        string bubbleType = msg.Sender == "User" ? "message-user" : "message-bot";
+                        <div class="message-bubble @bubbleType">
+                            <div class="message-content">@msg.Content</div>
+                            
+                            @if (msg.Sender == "Bot" && !string.IsNullOrEmpty(msg.CitationsJson))
+                            {
+                                var citations = System.Text.Json.JsonSerializer.Deserialize<List<string>>(msg.CitationsJson);
+                                if (citations != null && citations.Any())
+                                {
+                                    <div class="citation-container">
+                                        <div class="fw-bold mb-1" style="font-size: 0.72rem; text-transform: uppercase; color: #64748b;">
+                                            <i class="bi bi-bookmark-check-fill me-1"></i> Nguồn tài liệu xác thực:
+                                        </div>
+                                        @foreach (var cite in citations)
+                                        {
+                                            <span class="citation-badge"><i class="bi bi-file-earmark-text me-1"></i>@cite</span>
+                                        }
+                                    </div>
+                                }
+                            }
+                            <div class="message-time">@msg.CreatedAt.ToLocalTime().ToString("HH:mm")</div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center text-muted my-auto" id="noMessagesPlaceholder">
+                        <i class="bi bi-robot display-5 text-primary d-block mb-3"></i>
+                        <h5>Bắt đầu gửi câu hỏi!</h5>
+                        <p class="small text-secondary px-5">Tôi sẽ tìm kiếm thông tin tương đồng trong các tài liệu đã học để trả lời chính xác cho bạn.</p>
+                    </div>
+                }
+            </div>
+
+            <!-- Chat Input form (AJAX) -->
+            <div class="chat-input-container">
+                <form id="chatForm">
+                    <input type="hidden" id="sessionIdInput" value="@Model.Id" />
+                    <div class="input-wrapper">
+                        <input type="text" id="queryInput" class="chat-input" placeholder="Nhập câu hỏi của bạn về tài liệu môn học..." required autocomplete="off" />
+                        <button type="submit" id="sendBtn" class="btn-send">
+                            Gửi <i class="bi bi-send-fill ms-2"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        }
+        else
+        {
+            <div class="text-center text-muted my-auto py-5">
+                <i class="bi bi-question-circle display-4 text-secondary d-block mb-3"></i>
+                <h4>Chưa có phiên hội thoại nào đang hoạt động</h4>
+                <p>Hãy chọn môn học bên trái và bấm <strong>Mới</strong> để bắt đầu phiên hỏi đáp thông minh.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modal: New Session -->
+<div class="modal fade" id="newSessionModal" tabindex="-1" aria-labelledby="newSessionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg">
+            <form asp-action="CreateSession" method="post">
+                <input type="hidden" name="subjectId" value="@activeSubjectId" />
+                <div class="modal-header border-bottom-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold" id="newSessionModalLabel">Bắt đầu phiên hội thoại mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 pb-4">
+                    <div class="mb-3">
+                        <label for="sessionTitle" class="form-label fw-semibold">Tên phiên / Chủ đề hội thoại</label>
+                        <input type="text" class="form-control rounded-3" id="sessionTitle" name="title" placeholder="Ví dụ: Ôn tập chương 1..." required>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 px-4 pb-4">
+                    <button type="button" class="btn btn-secondary rounded-3" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary rounded-3 px-4">Tạo mới</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Scroll to bottom of chat
+            scrollChatToBottom();
+
+            // Handle subject selector change
+            $('#subjectSelect').change(function () {
+                var selectedSubjectId = $(this).val();
+                window.location.href = '?subjectId=' + selectedSubjectId;
+            });
+
+            // Handle message sending via AJAX
+            $('#chatForm').submit(function (e) {
+                e.preventDefault();
+                var sessionId = $('#sessionIdInput').val();
+                var queryText = $('#queryInput').val().trim();
+
+                if (!queryText) return;
+
+                // Disable input and button
+                $('#queryInput').val('').prop('disabled', true);
+                $('#sendBtn').prop('disabled', true);
+
+                // Hide placeholder
+                $('#noMessagesPlaceholder').hide();
+
+                // Append user message immediately
+                var currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                var userHtml = `
+                    <div class="message-bubble message-user">
+                        <div class="message-content">${escapeHtml(queryText)}</div>
+                        <div class="message-time">${currentTime}</div>
+                    </div>
+                `;
+                $('#messagesBox').append(userHtml);
+                scrollChatToBottom();
+
+                // Append typing indicator
+                var typingHtml = `
+                    <div class="typing-indicator" id="typingIndicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                `;
+                $('#messagesBox').append(typingHtml);
+                scrollChatToBottom();
+
+                // POST to Server
+                $.ajax({
+                    url: '@Url.Action("SendMessage", "Chat")',
+                    type: 'POST',
+                    data: {
+                        sessionId: sessionId,
+                        message: queryText
+                    },
+                    success: function (res) {
+                        // Remove typing indicator
+                        $('#typingIndicator').remove();
+
+                        if (res.success) {
+                            // Compile citation badges
+                            var citationHtml = '';
+                            if (res.botMessage.citations && res.botMessage.citations.length > 0) {
+                                citationHtml += `
+                                    <div class="citation-container">
+                                        <div class="fw-bold mb-1" style="font-size: 0.72rem; text-transform: uppercase; color: #64748b;">
+                                            <i class="bi bi-bookmark-check-fill me-1"></i> Nguồn tài liệu xác thực:
+                                        </div>
+                                `;
+                                res.botMessage.citations.forEach(function (cite) {
+                                    citationHtml += `<span class="citation-badge"><i class="bi bi-file-earmark-text me-1"></i>${escapeHtml(cite)}</span>`;
+                                });
+                                citationHtml += `</div>`;
+                            }
+
+                            // Append bot message
+                            var botHtml = `
+                                <div class="message-bubble message-bot">
+                                    <div class="message-content">${formatMarkdown(res.botMessage.content)}</div>
+                                    ${citationHtml}
+                                    <div class="message-time">${res.botMessage.time}</div>
+                                </div>
+                            `;
+                            $('#messagesBox').append(botHtml);
+                        } else {
+                            $('#messagesBox').append(`
+                                <div class="message-bubble message-bot text-danger border-danger">
+                                    Lỗi xử lý phản hồi từ chatbot.
+                                </div>
+                            `);
+                        }
+                        scrollChatToBottom();
+                    },
+                    error: function () {
+                        $('#typingIndicator').remove();
+                        $('#messagesBox').append(`
+                            <div class="message-bubble message-bot text-danger border-danger">
+                                Lỗi kết nối máy chủ. Vui lòng thử lại.
+                            </div>
+                        `);
+                        scrollChatToBottom();
+                    },
+                    complete: function () {
+                        // Re-enable inputs
+                        $('#queryInput').prop('disabled', false).focus();
+                        $('#sendBtn').prop('disabled', false);
+                    }
+                });
+            });
+
+            function scrollChatToBottom() {
+                var box = document.getElementById('messagesBox');
+                if (box) {
+                    box.scrollTop = box.scrollHeight;
+                }
+            }
+
+            function escapeHtml(text) {
+                return text
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            function formatMarkdown(text) {
+                // Simple bolding and line breaks formatter for simulated markdown in chatbot response
+                var formatted = escapeHtml(text);
+                
+                // Replace **text** with <strong>text</strong>
+                formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                
+                // Replace *text* with <em>text</em>
+                formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                
+                // Replace `code` with <code>code</code>
+                formatted = formatted.replace(/`(.*?)`/g, '<code>$1</code>');
+                
+                // Convert newlines to paragraphs
+                formatted = formatted.replace(/\n\n/g, '<br/><br/>');
+                formatted = formatted.replace(/\n/g, '<br/>');
+
+                return formatted;
+            }
+        });
+    </script>
+}

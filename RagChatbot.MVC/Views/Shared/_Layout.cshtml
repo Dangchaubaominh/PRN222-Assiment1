@@ -1,50 +1,165 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - RagChatbot.MVC</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - RAG Chatbot System</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/RagChatbot.MVC.styles.css" asp-append-version="true" />
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .navbar-brand-custom {
+            font-weight: 800;
+            font-size: 1.35rem;
+            background: linear-gradient(to right, #4f46e5, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-link-custom {
+            font-weight: 500;
+            color: #475569 !important;
+            padding: 8px 16px !important;
+            border-radius: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .nav-link-custom:hover {
+            color: #4f46e5 !important;
+            background: rgba(79, 70, 229, 0.06);
+        }
+
+        .nav-link-custom.active-custom {
+            color: #4f46e5 !important;
+            font-weight: 600;
+            background: rgba(79, 70, 229, 0.08);
+        }
+
+        .btn-logout {
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            background: transparent;
+            color: #ef4444;
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.25s ease;
+        }
+
+        .btn-logout:hover {
+            background: #ef4444;
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+        }
+
+        .footer-custom {
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            padding: 20px 0;
+            margin-top: auto;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .card-custom {
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+            background: white;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+        }
+    </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">RagChatbot.MVC</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-lg navbar-light navbar-custom py-3">
+            <div class="container">
+                <a class="navbar-brand navbar-brand-custom" asp-area="" asp-controller="Subject" asp-action="Index">
+                    <i class="bi bi-cpu-fill me-2"></i>RAG Chatbot
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                        aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark fw-bold" asp-area="" asp-controller="Subject" asp-action="Index">Quản lý Môn học</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>  
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link nav-link-custom" asp-controller="Subject" asp-action="Index">
+                                    <i class="bi bi-journal-bookmark-fill me-1"></i> Quản lý Môn học
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link nav-link-custom" asp-controller="Chat" asp-action="Index">
+                                    <i class="bi bi-chat-dots-fill me-1"></i> Chatbot Q&A
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link nav-link-custom" asp-controller="Benchmark" asp-action="Index">
+                                    <i class="bi bi-bar-chart-line-fill me-1"></i> Dashboard RBL
+                                </a>
+                            </li>
+                        }
                     </ul>
+                    <div class="d-flex align-items-center">
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <span class="text-secondary me-3 fw-semibold">
+                                <i class="bi bi-person-circle me-1"></i> Xin chào, @User.Identity.Name
+                            </span>
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                                <button type="submit" class="btn-logout">
+                                    Đăng xuất <i class="bi bi-box-arrow-right ms-1"></i>
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-primary px-4 rounded-3 shadow-sm">
+                                Đăng nhập
+                            </a>
+                        }
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
+
+    <div class="container my-5">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - RagChatbot.MVC - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="footer-custom mt-auto">
+        <div class="container text-center">
+            &copy; 2026 - <strong>RAG Chatbot</strong> | Built with C# 3-Layer + ASP.NET Core MVC architecture. All rights reserved.
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

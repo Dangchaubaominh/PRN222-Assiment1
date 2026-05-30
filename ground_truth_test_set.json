@@ -1,0 +1,302 @@
+[
+  {
+    "id": 1,
+    "question": "C# là gì?",
+    "ground_truth_context": "C# là ngôn ngữ của Microsoft thiết kế cho phát triển ứng dụng doanh nghiệp và web.",
+    "ground_truth_answer": "C# là một ngôn ngữ lập trình hướng đối tượng mạnh mẽ, được phát triển bởi Microsoft, chạy trên .NET framework."
+  },
+  {
+    "id": 2,
+    "question": "Tính đóng gói trong OOP là gì?",
+    "ground_truth_context": "Đóng gói ngăn chặn truy cập trực tiếp từ bên ngoài vào dữ liệu nội bộ.",
+    "ground_truth_answer": "Tính đóng gói (Encapsulation) giúp che giấu thông tin chi tiết của đối tượng bằng cách đặt trạng thái là private và truy cập qua public property."
+  },
+  {
+    "id": 3,
+    "question": "Tính kế thừa trong OOP là gì?",
+    "ground_truth_context": "Kế thừa giúp tái sử dụng mã nguồn giữa các lớp có quan hệ cha-con.",
+    "ground_truth_answer": "Tính kế thừa (Inheritance) cho phép một lớp con kế thừa lại các thuộc tính và phương thức từ lớp cha."
+  },
+  {
+    "id": 4,
+    "question": "Tính đa hình trong OOP là gì?",
+    "ground_truth_context": "Đa hình giúp một phương thức có nhiều hình thức triển khai khác nhau ở lớp con.",
+    "ground_truth_answer": "Tính đa hình (Polymorphism) cho phép các đối tượng khác nhau phản hồi cùng một thông điệp theo các cách khác nhau thông qua virtual/override."
+  },
+  {
+    "id": 5,
+    "question": "Tính trừu tượng trong OOP là gì?",
+    "ground_truth_context": "Trừu tượng hóa giúp ẩn đi sự phức tạp và chỉ hiển thị các tính năng cần thiết.",
+    "ground_truth_answer": "Tính trừu tượng (Abstraction) tập trung vào việc định nghĩa các giao diện (interface) hoặc lớp trừu tượng (abstract class) mà không đi vào chi tiết."
+  },
+  {
+    "id": 6,
+    "question": "Sự khác biệt giữa Interface và Abstract Class là gì?",
+    "ground_truth_context": "Interface định nghĩa hợp đồng hành vi, Abstract class định nghĩa một bản thiết kế chung.",
+    "ground_truth_answer": "Interface chỉ chứa khai báo phương thức và đa kế thừa, còn Abstract Class chứa cả thuộc tính/phương thức cụ thể nhưng chỉ đơn kế thừa."
+  },
+  {
+    "id": 7,
+    "question": "Từ khóa virtual trong C# dùng làm gì?",
+    "ground_truth_context": "Virtual cho phép phương thức được đa hình hóa ở các lớp dẫn xuất.",
+    "ground_truth_answer": "Từ khóa virtual khai báo một phương thức trong lớp cha cho phép lớp con ghi đè (override) lại."
+  },
+  {
+    "id": 8,
+    "question": "Dependency Injection (DI) trong C# là gì?",
+    "ground_truth_context": "Dependency Injection giúp quản lý vòng đời và giảm liên kết cứng giữa các thành phần.",
+    "ground_truth_answer": "DI là một mẫu thiết kế giúp giảm sự phụ thuộc giữa các class bằng cách tiêm (inject) các phụ thuộc vào qua constructor."
+  },
+  {
+    "id": 9,
+    "question": "Garbage Collection (GC) trong .NET hoạt động như thế nào?",
+    "ground_truth_context": "Garbage Collector dọn dẹp các đối tượng mồ côi trong bộ nhớ .NET.",
+    "ground_truth_answer": "GC tự động giải phóng bộ nhớ heap của các đối tượng không còn được tham chiếu để tránh rò rỉ bộ nhớ."
+  },
+  {
+    "id": 10,
+    "question": "Sự khác biệt giữa Value Type và Reference Type là gì?",
+    "ground_truth_context": "Value type lưu dữ liệu trên stack, reference type lưu đối tượng trên heap.",
+    "ground_truth_answer": "Sự khác biệt giữa Value Type và Reference Type là gì? Value Type lưu trữ trực tiếp trên Stack (struct, int), còn Reference Type lưu địa chỉ trên Stack trỏ đến bộ nhớ Heap (class, string)."
+  },
+  {
+    "id": 11,
+    "question": "Kiến trúc 3 lớp (3-Layers) gồm những tầng nào?",
+    "ground_truth_context": "Kiến trúc 3 lớp phân tách trách nhiệm hệ thống thành PL, BLL và DAL.",
+    "ground_truth_answer": "Gồm Presentation Layer (giao diện), Business Logic Layer (xử lý nghiệp vụ), và Data Access Layer (kết nối cơ sở dữ liệu)."
+  },
+  {
+    "id": 12,
+    "question": "Vai trò của Data Access Layer (DAL) là gì?",
+    "ground_truth_context": "DAL tương tác trực tiếp với Database thông qua EF Core hoặc ADO.NET.",
+    "ground_truth_answer": "DAL chịu trách nhiệm thực hiện truy vấn cơ sở dữ liệu, đọc ghi file, và trả về dữ liệu thuần túy (Entities/DTO)."
+  },
+  {
+    "id": 13,
+    "question": "Vai trò của Business Logic Layer (BLL) là gì?",
+    "ground_truth_context": "BLL chứa logic nghiệp vụ cốt lõi, kiểm tra ràng buộc logic của hệ thống.",
+    "ground_truth_answer": "BLL nhận dữ liệu từ DAL, áp dụng quy tắc nghiệp vụ, tính toán, và chuyển tiếp kết quả lên Presentation Layer."
+  },
+  {
+    "id": 14,
+    "question": "Vai trò của Presentation Layer (PL) là gì?",
+    "ground_truth_context": "PL tương tác với người dùng qua Web UI, Mobile App hoặc Desktop Window.",
+    "ground_truth_answer": "PL hiển thị thông tin cho người dùng và tiếp nhận các yêu cầu điều hướng, không được thao tác trực tiếp với Database."
+  },
+  {
+    "id": 15,
+    "question": "Tại sao không nên kết nối trực tiếp database từ Controller?",
+    "ground_truth_context": "Kết nối trực tiếp từ Controller sang DB vi phạm kiến trúc 3 lớp và làm tăng sự phụ thuộc chặt chẽ.",
+    "ground_truth_answer": "Để tuân thủ tính phân tách trách nhiệm (Separation of Concerns), giúp code dễ bảo trì, dễ viết unit test và bảo mật hơn."
+  },
+  {
+    "id": 16,
+    "question": "Repository Pattern là gì?",
+    "ground_truth_context": "Repository cung cấp giao diện dạng bộ sưu tập (collection-like) để truy xuất Entities.",
+    "ground_truth_answer": "Repository Pattern đóng vai trò là một lớp trung gian giữa Business Logic và nguồn dữ liệu vật lý để che giấu cơ chế truy cập dữ liệu."
+  },
+  {
+    "id": 17,
+    "question": "Entity Framework Core là gì?",
+    "ground_truth_context": "EF Core loại bỏ nhu cầu viết hầu hết các mã SQL truy vấn thủ công.",
+    "ground_truth_answer": "EF Core là một bộ ánh xạ quan hệ đối tượng (ORM) mã nguồn mở giúp lập trình viên làm việc với database thông qua các đối tượng C#."
+  },
+  {
+    "id": 18,
+    "question": "Mã kết nối cơ sở dữ liệu (Connection String) nên để ở đâu?",
+    "ground_truth_context": "Lưu trữ Connection String trong appsettings.json giúp cấu hình linh hoạt theo môi trường.",
+    "ground_truth_answer": "Mã kết nối cơ sở dữ liệu (Connection String) nên để ở đâu? Connection string phải được lưu trữ an toàn trong file cấu hình appsettings.json và đọc ra thông qua Configuration API."
+  },
+  {
+    "id": 19,
+    "question": "Unit of Work là gì?",
+    "ground_truth_context": "Unit of Work nhóm nhiều thao tác repository vào một transaction duy nhất.",
+    "ground_truth_answer": "Unit of Work quản lý một danh sách các giao dịch (transactions) và đảm bảo tất cả các cập nhật database được lưu trữ đồng bộ thành một khối."
+  },
+  {
+    "id": 20,
+    "question": "DTO (Data Transfer Object) dùng để làm gì?",
+    "ground_truth_context": "DTO tối ưu hóa gói dữ liệu truyền tải và tăng tính bảo mật.",
+    "ground_truth_answer": "DTO dùng để vận chuyển dữ liệu giữa các tầng mà không làm lộ cấu trúc thực tế của các bảng thực thể trong database."
+  },
+  {
+    "id": 21,
+    "question": "Mô hình MVC là gì?",
+    "ground_truth_context": "MVC là kiến trúc giao diện tách biệt Dữ liệu, Giao diện và Luồng điều khiển.",
+    "ground_truth_answer": "MVC chia ứng dụng thành Model (Dữ liệu), View (Giao diện hiển thị), và Controller (Bộ điều khiển logic nghiệp vụ)."
+  },
+  {
+    "id": 22,
+    "question": "Controller trong MVC đóng vai trò gì?",
+    "ground_truth_context": "Controller điều hướng luồng dữ liệu giữa Model và View.",
+    "ground_truth_answer": "Controller tiếp nhận request từ người dùng, gọi Service (BLL) để xử lý dữ liệu và chọn View phù hợp để hiển thị."
+  },
+  {
+    "id": 23,
+    "question": "View trong MVC là gì?",
+    "ground_truth_context": "View chịu trách nhiệm render giao diện HTML gửi về cho trình duyệt.",
+    "ground_truth_answer": "View là giao diện người dùng hiển thị dữ liệu (thường viết bằng Razor CSHTML trong ASP.NET Core)."
+  },
+  {
+    "id": 24,
+    "question": "Razor Page khác gì MVC?",
+    "ground_truth_context": "Razor Pages là mô hình page-focused, còn MVC là controller-focused.",
+    "ground_truth_answer": "Razor Page tập trung Code và HTML vào một file duy nhất kiểu MVVM, còn MVC phân chia file Controller và View độc lập."
+  },
+  {
+    "id": 25,
+    "question": "Routing trong ASP.NET Core MVC hoạt động thế nào?",
+    "ground_truth_context": "Routing ánh xạ URL request thành phương thức xử lý cụ thể của Controller.",
+    "ground_truth_answer": "Routing định tuyến các URL đến Controller và Action tương ứng dựa trên mẫu cấu hình (ví dụ: {controller}/{action}/{id})."
+  },
+  {
+    "id": 26,
+    "question": "Model Binding trong ASP.NET Core là gì?",
+    "ground_truth_context": "Model binding chuyển đổi HTTP data thành các đối tượng C# mạnh kiểu.",
+    "ground_truth_answer": "Model Binding tự động ánh xạ dữ liệu từ HTTP Request (Query String, Form, JSON) vào tham số của Action trong Controller."
+  },
+  {
+    "id": 27,
+    "question": "ModelState.IsValid dùng để làm gì?",
+    "ground_truth_context": "Ràng buộc kiểm dữ liệu đầu vào của Model được xác thực thông qua ModelState.",
+    "ground_truth_answer": "ModelState.IsValid kiểm tra xem dữ liệu gửi lên có thỏa mãn các ràng buộc Data Annotations khai báo trong Model hay không."
+  },
+  {
+    "id": 28,
+    "question": "ViewBag và ViewData khác nhau như thế nào?",
+    "ground_truth_context": "ViewBag dùng cú pháp động, ViewData dùng cú pháp mảng liên kết.",
+    "ground_truth_answer": "ViewBag là dynamic object, còn ViewData là Dictionary dạng khóa/giá trị, cả hai dùng truyền dữ liệu ngắn hạn từ Controller sang View."
+  },
+  {
+    "id": 29,
+    "question": "TempData dùng để làm gì?",
+    "ground_truth_context": "TempData lưu dữ liệu qua phiên làm việc ngắn hạn và tự xóa sau khi được đọc.",
+    "ground_truth_answer": "TempData lưu trữ dữ liệu tạm thời giữa các HTTP Request liên tiếp (thường dùng khi thực hiện Redirect)."
+  },
+  {
+    "id": 30,
+    "question": "Middleware trong ASP.NET Core là gì?",
+    "ground_truth_context": "Middleware xử lý tuần tự Request/Response như Auth, Logging, Static Files.",
+    "ground_truth_answer": "Middleware là các khối mã được kết nối thành một đường ống dẫn (pipeline) để xử lý yêu cầu và phản hồi HTTP."
+  },
+  {
+    "id": 31,
+    "question": "RAG là gì?",
+    "ground_truth_context": "RAG cải tiến LLM bằng cách cung cấp dữ liệu thực tế từ tài liệu bên ngoài.",
+    "ground_truth_answer": "RAG (Retrieval-Augmented Generation) là kiến trúc kết hợp giữa việc truy xuất tài liệu liên quan và mô hình ngôn ngữ lớn để trả lời chính xác theo ngữ cảnh."
+  },
+  {
+    "id": 32,
+    "question": "Fine-Tuning là gì?",
+    "ground_truth_context": "Fine-tuning huấn luyện lại các tham số mô hình để tối ưu cho tác vụ cụ thể.",
+    "ground_truth_answer": "Fine-Tuning là quá trình tiếp tục huấn luyện một mô hình AI có sẵn trên một tập dữ liệu chuyên biệt để thay đổi trọng số của nó."
+  },
+  {
+    "id": 33,
+    "question": "Sự khác biệt lớn nhất giữa RAG và Fine-Tuning là gì?",
+    "ground_truth_context": "RAG như phòng thi mở sách cứu hộ, Fine-tuning như học sinh ôn thi thuộc lòng kiến thức.",
+    "ground_truth_answer": "RAG cung cấp ngữ cảnh động bên ngoài mà không cần đổi trọng số mô hình, còn Fine-Tuning huấn luyện trực tiếp để mô hình ghi nhớ hành vi/kiến thức mới."
+  },
+  {
+    "id": 34,
+    "question": "Embedding Vector là gì?",
+    "ground_truth_context": "Embedding chuyển văn bản thành vector số đại diện cho nghĩa ngữ cảnh.",
+    "ground_truth_answer": "Embedding vector là chuỗi các số thực biểu diễn ý nghĩa ngữ nghĩa của một từ hoặc đoạn văn bản trong không gian nhiều chiều."
+  },
+  {
+    "id": 35,
+    "question": "Cosine Similarity tính toán độ tương đồng như thế nào?",
+    "ground_truth_context": "Cosine similarity là tỷ số tích vô hướng chia tích độ dài của hai vector.",
+    "ground_truth_answer": "Cosine Similarity đo góc giữa hai vector trong không gian đa chiều, giá trị gần 1 thể hiện hai đoạn văn bản có ý nghĩa rất giống nhau."
+  },
+  {
+    "id": 36,
+    "question": "Tại sao cần chunking (cắt nhỏ) tài liệu?",
+    "ground_truth_context": "Chunking chia tài liệu lớn thành các phần nhỏ giúp tối ưu hóa việc tìm kiếm và xử lý AI.",
+    "ground_truth_answer": "Để khớp với giới hạn ngữ cảnh (context window) của LLM và tăng độ tập trung của thông tin truy xuất, tránh pha loãng ngữ nghĩa."
+  },
+  {
+    "id": 37,
+    "question": "Recursive Character Chunking là gì?",
+    "ground_truth_context": "Recursive chunking chia nhỏ văn bản đệ quy giữ tính toàn vẹn của câu và đoạn.",
+    "ground_truth_answer": "Là chiến lược cắt nhỏ văn bản sử dụng danh sách ký tự ưu tiên như xuống dòng, dấu câu, dấu cách để giữ nguyên cấu trúc câu."
+  },
+  {
+    "id": 38,
+    "question": "RAGAS benchmark dùng đánh giá những chỉ số nào?",
+    "ground_truth_context": "RAGAS đo lường chất lượng hệ thống RAG qua các khía cạnh ngữ cảnh và câu trả lời.",
+    "ground_truth_answer": "RAGAS benchmark đánh giá Faithfulness (độ trung thực), Answer Relevance (độ liên quan câu trả lời) và Context Recall (độ thu hồi ngữ cảnh)."
+  },
+  {
+    "id": 39,
+    "question": "Faithfulness trong RAG là gì?",
+    "ground_truth_context": "Faithfulness đảm bảo AI không sinh ra ảo giác ngoài tài liệu cung cấp.",
+    "ground_truth_answer": "Faithfulness đo lường mức độ câu trả lời của AI hoàn toàn dựa vào ngữ cảnh tài liệu truy xuất được, không bịa đặt thông tin."
+  },
+  {
+    "id": 40,
+    "question": "Context Recall là gì?",
+    "ground_truth_context": "Context recall đánh giá khả năng lấy đúng và đủ tài liệu của bộ truy xuất.",
+    "ground_truth_answer": "Context Recall đo lường xem hệ thống có truy xuất được đầy đủ tất cả các thông tin cần thiết từ tài liệu gốc để trả lời câu hỏi hay không."
+  },
+  {
+    "id": 41,
+    "question": "Lịch sử hội thoại theo phiên (Chat Session) là gì?",
+    "ground_truth_context": "Session history lưu vết cuộc trò chuyện để bot tham chiếu các tin nhắn trước.",
+    "ground_truth_answer": "Là việc nhóm các tin nhắn chat của người dùng vào từng phiên độc lập để chatbot giữ vững ngữ cảnh trò chuyện nối tiếp."
+  },
+  {
+    "id": 42,
+    "question": "Mô hình PhoBERT tối ưu cho ngôn ngữ nào?",
+    "ground_truth_context": "PhoBERT là mô hình biểu diễn từ tối ưu cho NLP tiếng Việt.",
+    "ground_truth_answer": "Mô hình PhoBERT là mô hình ngôn ngữ dựa trên kiến trúc BERT được huấn luyện chuyên biệt và tối ưu hóa tốt nhất cho tiếng Việt."
+  },
+  {
+    "id": 43,
+    "question": "Mô hình bge-m3 có đặc điểm gì nổi bật?",
+    "ground_truth_context": "bge-m3 hỗ trợ tìm kiếm ngữ nghĩa đa ngữ đa tính năng.",
+    "ground_truth_answer": "Mô hình bge-m3 là mô hình embedding đa ngôn ngữ mạnh mẽ của BAAI, hỗ trợ độ dài văn bản lớn và tìm kiếm hỗn hợp rất hiệu quả."
+  },
+  {
+    "id": 44,
+    "question": "text-embedding-3-small là mô hình của hãng nào?",
+    "ground_truth_context": "text-embedding-3-small là mô hình embedding thương mại của OpenAI.",
+    "ground_truth_answer": "Là mô hình sinh vector embedding thế hệ mới có chi phí thấp và hiệu năng cao của hãng OpenAI."
+  },
+  {
+    "id": 45,
+    "question": "multilingual-e5-base là gì?",
+    "ground_truth_context": "E5 là mô hình embedding học máy mã nguồn mở hỗ trợ nhiều ngôn ngữ.",
+    "ground_truth_answer": "Là một mô hình embedding đa ngôn ngữ miễn phí chất lượng cao, thường dùng làm baseline cho các hệ thống RAG."
+  },
+  {
+    "id": 46,
+    "question": "Làm sao giới hạn câu trả lời trong phạm vi tài liệu?",
+    "ground_truth_context": "Giới hạn phạm vi bằng cách lọc similarity score và thiết kế Prompt chặt chẽ.",
+    "ground_truth_answer": "Cần thiết lập System Prompt nghiêm ngặt cho LLM và chỉ cung cấp ngữ cảnh truy xuất được, yêu cầu AI từ chối trả lời nếu thiếu thông tin."
+  },
+  {
+    "id": 47,
+    "question": "Tại sao RAG lại giúp giảm ảo giác (hallucination) của AI?",
+    "ground_truth_context": "Cung cấp Grounding Context giúp định hướng AI tạo câu trả lời dựa trên sự thật.",
+    "ground_truth_answer": "Vì AI được cung cấp trực tiếp nguồn tài liệu chính xác làm căn cứ trả lời, thay vì phải tự suy đoán từ bộ nhớ huấn luyện."
+  },
+  {
+    "id": 48,
+    "question": "Độ trễ (Latency) trong RAG ảnh hưởng bởi yếu tố nào?",
+    "ground_truth_context": "Độ trễ tổng bằng thời gian embedding + thời gian retrieval + thời gian sinh văn bản.",
+    "ground_truth_answer": "Ảnh hưởng bởi tốc độ sinh vector embedding, tốc độ truy vấn cơ sở dữ liệu vector và thời gian sinh từ (inference) của LLM."
+  },
+  {
+    "id": 49,
+    "question": "Vector Database là gì?",
+    "ground_truth_context": "Vector database tối ưu cho lưu trữ và tìm kiếm vector tương đồng ngữ nghĩa.",
+    "ground_truth_answer": "Là cơ sở dữ liệu chuyên biệt để lưu trữ và truy vấn nhanh các vector cao chiều bằng các thuật toán tìm kiếm láng giềng gần nhất (như ANN)."
+  },
+  {
+    "id": 50,
+    "question": "Tại sao cần quản lý tài liệu theo môn học hoặc chương?",
+    "ground_truth_context": "Phân nhóm tài liệu theo môn học giúp giới hạn phạm vi tìm kiếm ngữ cảnh chính xác.",
+    "ground_truth_answer": "Để thu hẹp không gian tìm kiếm vector, tăng tốc độ truy xuất và tránh nhiễu thông tin giữa các môn học khác nhau."
+  }
+]
