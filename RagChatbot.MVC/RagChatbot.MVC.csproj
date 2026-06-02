@@ -1,8 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
     <ProjectReference Include="..\RagChatbot.BLL\RagChatbot.BLL.csproj" />
-    <ProjectReference Include="..\RagChatbot.DAL\RagChatbot.DAL.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,6 +21,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>a214e7f4-1ce5-41d2-9bcc-4d3145f3ec9c</UserSecretsId>
   </PropertyGroup>
 
 </Project>

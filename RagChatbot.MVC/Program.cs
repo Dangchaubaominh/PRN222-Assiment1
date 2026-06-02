@@ -1,22 +1,12 @@
-using Microsoft.EntityFrameworkCore;
-using RagChatbot.DAL.Data;
-using RagChatbot.DAL.Repositories.Interfaces;
-using RagChatbot.DAL.Repositories.Implements;
-using RagChatbot.BLL.Services.Interfaces;
-using RagChatbot.BLL.Services.Implements;
+﻿using RagChatbot.BLL.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
-builder.Services.AddScoped<ISubjectService, SubjectService>();
-builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
-builder.Services.AddScoped<IDocumentService, DocumentService>();
+// Gọi hàm Extension từ tầng BLL để đăng ký toàn bộ Dependency Injection
+builder.Services.AddProjectDependencies(builder.Configuration);
 
 var app = builder.Build();
 
@@ -39,6 +29,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
-
 
 app.Run();

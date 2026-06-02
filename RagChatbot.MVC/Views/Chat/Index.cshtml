@@ -1,0 +1,109 @@
+﻿@{
+    ViewData["Title"] = "Phòng Chat AI";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm border-0">
+
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-robot"></i> Trợ lý AI - Truy vấn Tài liệu</h5>
+                    <a href="@Url.Action("Index", "Subject")" class="btn btn-sm btn-light fw-bold text-primary">
+                        🔙 Trở về Môn học
+                    </a>
+                </div>
+
+                <div class="card-body" id="chat-box" style="height: 60vh; overflow-y: auto; background-color: #f0f2f5;">
+                    <div class="d-flex justify-content-start mb-3">
+                        <div class="p-3 rounded-3 bg-white shadow-sm border" style="max-width: 80%;">
+                            <strong class="text-primary">🤖 AI RAG-Bot:</strong><br />
+                            Xin chào! Tôi là trợ lý AI. Tôi đã học xong các tài liệu của môn học này. Bạn muốn hỏi tôi điều gì?
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-white p-3 border-top-0">
+                    <form id="chat-form" class="d-flex align-items-center">
+                        <input type="hidden" id="SubjectId" value="@ViewBag.SubjectId" />
+                        <input type="text" id="userInput" class="form-control form-control-lg me-2 rounded-pill shadow-none"
+                               placeholder="Nhập câu hỏi của bạn vào đây..." required autocomplete="off" style="border-color: #dee2e6;" />
+                        <button type="submit" class="btn btn-primary btn-lg rounded-circle shadow-sm" id="sendBtn" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                            ➤
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('userInput');
+
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const message = userInput.value.trim();
+            if(message === '') return;
+
+            // 1. In tin nhắn của Người dùng ra màn hình (Bên phải, màu xanh)
+            appendMessage('Bạn', message, 'user');
+            userInput.value = '';
+
+            // 2. Tạm thời in ra tin nhắn giả lập AI đang nghĩ
+            appendMessage('🤖 AI RAG-Bot', 'Đang quét tài liệu và suy nghĩ...', 'ai', true);
+
+            // =========================================================
+            // ĐOẠN ĐƯỢC THÊM VÀO: ĐẤU NỐI ĐƯỜNG TRUYỀN XUỐNG BACKEND C#
+            // =========================================================
+            const subjectId = document.getElementById('SubjectId').value;
+            const formData = new FormData();
+            formData.append('subjectId', subjectId);
+            formData.append('userMessage', message);
+
+            // Gọi API xuống ChatController bằng Razor Url.Action chuẩn
+            fetch('@Url.Action("SendMessage", "Chat")', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Xóa bong bóng "Đang suy nghĩ..." đi
+                const loadingMsg = document.getElementById('loading-msg');
+                if (loadingMsg) loadingMsg.remove();
+
+                // In câu trả lời thật của AI ra màn hình
+                appendMessage('🤖 AI RAG-Bot', data.reply, 'ai');
+            })
+            .catch(error => {
+                // Xóa hành vi chờ đợi nếu mạng lỗi
+                const loadingMsg = document.getElementById('loading-msg');
+                if (loadingMsg) loadingMsg.remove();
+
+                appendMessage('🤖 AI RAG-Bot', 'Lỗi kết nối đến máy chủ...', 'ai');
+            });
+            // =========================================================
+        });
+
+        function appendMessage(sender, text, type, isLoading = false) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `d-flex justify-content-${type === 'user' ? 'end' : 'start'} mb-3`;
+
+            const innerDiv = document.createElement('div');
+            innerDiv.className = `p-3 rounded-3 shadow-sm ${type === 'user' ? 'bg-primary text-white' : 'bg-white border'}`;
+            innerDiv.style.maxWidth = '80%';
+
+            if(isLoading) msgDiv.id = 'loading-msg';
+            innerDiv.innerHTML = `<strong>${sender}:</strong><br/><span style="white-space: pre-wrap;">${text}</span>`;
+            msgDiv.appendChild(innerDiv);
+            chatBox.appendChild(msgDiv);
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+}

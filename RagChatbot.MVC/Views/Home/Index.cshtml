@@ -2,18 +2,313 @@
     ViewData["Title"] = "Trang chủ";
 }
 
-<div class="container mt-5">
-    <div class="p-5 mb-4 bg-light rounded-3 text-center shadow-sm">
-        <div class="container-fluid py-5">
-            <h1 class="display-5 fw-bold text-primary">Hệ Thống RAG Chatbot</h1>
-            <p class="col-md-8 fs-4 mx-auto text-muted mt-3">
-                Chào mừng bạn đến với ứng dụng quản lý môn học, tài liệu và hỗ trợ giải đáp tự động bằng AI.
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap');
+
+    .rag-hero {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        min-height: 520px;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+        font-family: 'Be Vietnam Pro', sans-serif;
+    }
+
+    .rag-hero-left {
+        padding: 56px 48px 48px 48px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: #ffffff;
+        border-right: 1px solid #e5e7eb;
+    }
+
+    .rag-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #0F6E56;
+        background: #E1F5EE;
+        padding: 4px 12px;
+        border-radius: 99px;
+        margin-bottom: 20px;
+        width: fit-content;
+    }
+
+    .rag-hero-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 40px;
+        font-weight: 700;
+        color: #111827;
+        line-height: 1.2;
+        margin-bottom: 16px;
+        letter-spacing: -0.02em;
+    }
+
+        .rag-hero-title span {
+            color: #1D9E75;
+        }
+
+    .rag-hero-desc {
+        font-size: 15px;
+        color: #6b7280;
+        line-height: 1.7;
+        margin-bottom: 32px;
+        max-width: 380px;
+    }
+
+    .rag-btn-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .rag-btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #1D9E75;
+        color: #fff !important;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 22px;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: 'Be Vietnam Pro', sans-serif;
+        text-decoration: none !important;
+        transition: background 0.15s, transform 0.1s;
+    }
+
+        .rag-btn-primary:hover {
+            background: #0F6E56;
+            color: #fff !important;
+        }
+
+        .rag-btn-primary:active {
+            transform: scale(0.98);
+        }
+
+    .rag-btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        color: #6b7280 !important;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 12px 18px;
+        font-size: 14px;
+        font-weight: 500;
+        font-family: 'Be Vietnam Pro', sans-serif;
+        text-decoration: none !important;
+        transition: background 0.15s;
+    }
+
+        .rag-btn-secondary:hover {
+            background: #f9fafb;
+            color: #374151 !important;
+        }
+
+    .rag-stats {
+        display: flex;
+        border-top: 1px solid #e5e7eb;
+        margin-top: 36px;
+        padding-top: 0;
+    }
+
+    .rag-stat {
+        flex: 1;
+        padding: 20px 0 0;
+        text-align: center;
+        border-right: 1px solid #e5e7eb;
+    }
+
+        .rag-stat:last-child {
+            border-right: none;
+        }
+
+    .rag-stat-number {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1D9E75;
+        letter-spacing: -0.03em;
+        display: block;
+    }
+
+    .rag-stat-label {
+        font-size: 11px;
+        color: #9ca3af;
+        display: block;
+        margin-top: 2px;
+    }
+
+    .rag-hero-right {
+        padding: 40px 36px;
+        background: #f9fafb;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        justify-content: center;
+    }
+
+    .rag-feature-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 18px 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+        .rag-feature-card:hover {
+            border-color: #9ca3af;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+    .rag-feature-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 18px;
+    }
+
+        .rag-feature-icon.green {
+            background: #E1F5EE;
+            color: #0F6E56;
+        }
+
+        .rag-feature-icon.blue {
+            background: #E6F1FB;
+            color: #185FA5;
+        }
+
+        .rag-feature-icon.amber {
+            background: #FAEEDA;
+            color: #854F0B;
+        }
+
+    .rag-feature-body h3 {
+        font-size: 14px;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 4px;
+    }
+
+    .rag-feature-body p {
+        font-size: 13px;
+        color: #6b7280;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    @@media (max-width: 768px) {
+        .rag-hero {
+            grid-template-columns: 1fr;
+        }
+
+        .rag-hero-left {
+            padding: 36px 24px;
+            border-right: none;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .rag-hero-title {
+            font-size: 30px;
+        }
+
+        .rag-hero-right {
+            padding: 28px 24px;
+        }
+    }
+</style>
+
+<div class="container mt-5 mb-5">
+    <div class="rag-hero">
+        <!-- Left: Headline & CTAs -->
+        <div class="rag-hero-left">
+            <div class="rag-tag">
+                <i class="bi bi-stars"></i>
+                AI-Powered
+            </div>
+
+            <h1 class="rag-hero-title">
+                Hệ Thống<br>
+                <span>RAG Chatbot</span>
+            </h1>
+
+            <p class="rag-hero-desc">
+                Ứng dụng quản lý môn học, tài liệu và hỗ trợ giải đáp tự động bằng trí tuệ nhân tạo — thông minh, nhanh chóng, chính xác.
             </p>
 
-            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4">
-                <a asp-controller="Subject" asp-action="Index" class="btn btn-primary btn-lg px-4 gap-3 shadow">
-                    <i class="bi bi-book"></i> Vào Quản lý Môn học
+            <div class="rag-btn-row">
+                <a asp-controller="Subject" asp-action="Index" class="rag-btn-primary">
+                    <i class="bi bi-book"></i>
+                    Vào Quản lý Môn học
                 </a>
+                <a asp-controller="Home" asp-action="Privacy" class="rag-btn-secondary">
+                    <i class="bi bi-info-circle"></i>
+                    Tìm hiểu thêm
+                </a>
+            </div>
+
+            <div class="rag-stats">
+                <div class="rag-stat">
+                    <span class="rag-stat-number">RAG</span>
+                    <span class="rag-stat-label">Công nghệ AI</span>
+                </div>
+                <div class="rag-stat">
+                    <span class="rag-stat-number">24/7</span>
+                    <span class="rag-stat-label">Hỗ trợ liên tục</span>
+                </div>
+                <div class="rag-stat">
+                    <span class="rag-stat-number">&#8734;</span>
+                    <span class="rag-stat-label">Tài liệu lưu trữ</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Feature Cards -->
+        <div class="rag-hero-right">
+            <div class="rag-feature-card">
+                <div class="rag-feature-icon green">
+                    <i class="bi bi-book-half"></i>
+                </div>
+                <div class="rag-feature-body">
+                    <h3>Quản lý Môn học</h3>
+                    <p>Tổ chức môn học, tài liệu học tập một cách có hệ thống và dễ truy cập.</p>
+                </div>
+            </div>
+
+            <div class="rag-feature-card">
+                <div class="rag-feature-icon blue">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div class="rag-feature-body">
+                    <h3>Chatbot Thông minh</h3>
+                    <p>Đặt câu hỏi và nhận câu trả lời tức thì từ AI dựa trên tài liệu của bạn.</p>
+                </div>
+            </div>
+
+            <div class="rag-feature-card">
+                <div class="rag-feature-icon amber">
+                    <i class="bi bi-file-earmark-text"></i>
+                </div>
+                <div class="rag-feature-body">
+                    <h3>Tìm kiếm Ngữ nghĩa</h3>
+                    <p>Tìm kiếm thông tin chính xác trong tài liệu với công nghệ RAG tiên tiến.</p>
+                </div>
             </div>
         </div>
     </div>

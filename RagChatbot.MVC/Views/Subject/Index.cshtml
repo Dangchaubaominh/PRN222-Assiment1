@@ -30,6 +30,9 @@
                         <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xoá môn học này không?');">
                             <button type="submit" class="btn btn-sm btn-danger">Xoá</button>
                         </form>
+                        <a href="@Url.Action("Index", "Chat", new { subjectId = item.Id })" class="btn btn-sm btn-success">
+                            Vào Chat
+                        </a>
                     </td>
                 </tr>
             }

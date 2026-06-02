@@ -61,8 +61,9 @@ namespace RagChatbot.BLL.Services.Implements
                 _documentRepository.Add(document);
                 return true;
             }
-            catch
+            catch 
             {
+                
                 return false;
             }
         }

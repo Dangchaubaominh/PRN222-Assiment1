@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using RagChatbot.BLL.Services.Interfaces;
 using System;
 using System.IO;
+using System.Linq; // Thêm thư viện này để dùng LINQ tìm ID file
 using System.Threading.Tasks;
 
 namespace RagChatbot.MVC.Controllers
@@ -14,11 +15,19 @@ namespace RagChatbot.MVC.Controllers
         private readonly ISubjectService _subjectService;
         private readonly IWebHostEnvironment _env;
 
-        public DocumentController(IDocumentService documentService, ISubjectService subjectService, IWebHostEnvironment env)
+        // 1. Khai báo thêm Service xử lý AI
+        private readonly IDocumentProcessingService _docProcessingService;
+
+        public DocumentController(
+            IDocumentService documentService,
+            ISubjectService subjectService,
+            IWebHostEnvironment env,
+            IDocumentProcessingService docProcessingService) // 2. Tiêm vào Constructor
         {
             _documentService = documentService;
             _subjectService = subjectService;
             _env = env;
+            _docProcessingService = docProcessingService; // 3. Gán giá trị
         }
 
         // Hiện danh sách tài liệu của một Môn học cụ thể
@@ -52,9 +61,31 @@ namespace RagChatbot.MVC.Controllers
 
                 using (var stream = file.OpenReadStream())
                 {
+                    // Hàm cũ của bạn: Lưu file vật lý và lưu DB
                     var isSuccess = await _documentService.UploadDocumentAsync(subjectId, file.FileName, stream, uploadsFolder);
+
                     if (isSuccess)
                     {
+                        // =========================================================
+                        // BẮT ĐẦU KÍCH HOẠT AI (RAG PIPELINE)
+                        // =========================================================
+
+                        // Mẹo: Vì hàm Upload của bạn trả về true/false, ta tìm lại file vừa lưu để lấy ID
+                        var uploadedDoc = _documentService.GetDocumentsBySubject(subjectId)
+                                                          .FirstOrDefault(d => d.FileName == file.FileName);
+
+                        if (uploadedDoc != null)
+                        {
+                            // Gọi BLL mở file ra, băm nhỏ và gửi lên OpenAI lấy Vector
+                            bool isProcessed = await _docProcessingService.ProcessDocumentAsync(uploadedDoc.Id, _env.WebRootPath);
+
+                            if (isProcessed)
+                                TempData["SuccessMessage"] = "Upload và nạp tri thức cho AI thành công!";
+                            else
+                                TempData["WarningMessage"] = "Upload thành công nhưng AI không thể đọc nội dung file này.";
+                        }
+                        // =========================================================
+
                         return RedirectToAction("Index", new { subjectId = subjectId });
                     }
                 }
@@ -71,6 +102,7 @@ namespace RagChatbot.MVC.Controllers
             _documentService.DeleteDocument(id, _env.WebRootPath);
             return RedirectToAction("Index", new { subjectId = subjectId });
         }
+
         // Cấp lệnh Tải file về máy (Ép buộc tải xuống thay vì mở trên trình duyệt)
         [HttpGet]
         public IActionResult Download(Guid id)
@@ -89,9 +121,9 @@ namespace RagChatbot.MVC.Controllers
             }
 
             // 4. Trả file về cho trình duyệt kèm theo tên gốc (FileName) để người dùng lưu lại
-            // Dùng "application/octet-stream" để báo trình duyệt đây là file cần tải xuống
             return PhysicalFile(physicalPath, "application/octet-stream", document.FileName);
         }
+
         // GET: Mở trang xem tài liệu (Viewer)
         [HttpGet]
         public IActionResult ViewDoc(Guid id)

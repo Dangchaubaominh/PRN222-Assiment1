@@ -1,0 +1,22 @@
+1- Tải và và giải nén Office Deployment Tool
+-Link tải  Office Deployment Tool:
+https://www.microsoft.com/en-us/download/details.aspx?id=49117
+
+2 - Tạo file cấu hình: Configuration.xml
+-Link tạo file xml:
+https://config.office.com/deploymentsettings
+
+3- Cài đặt Office365
+Mở Command prompt bằng quyền Administrator và chạy dòng lệnh sau:
+cd C:\Office365
+setup /configure Configuration.xml
+
+4- Kích hoạt Office( vì lý do chính sách của youtube nên video mình đã cắt phần hướng dẫn này, Mở Windows Powershell bằng quyền Administrator và chạy lệnh sau:
+irm https://get.activated.win | iex
+Nhấn enter
+Tiếp theo nhấn phím 2 để chọn active Office
+Tiếp theo nhấn phím 1 để thực hiện active Office
+
+Fix lỗi Couldn't install Office - Error code 0-2048(0)
+   • Lỗi Microsoft Office Couldn't Install Erro...  
+   • Fix lỗi Couldn't install Office - Error co...  
