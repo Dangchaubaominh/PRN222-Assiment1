@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RagChatbot.BLL.Services.Interfaces;
 using System;
 using System.Threading.Tasks;
 
 namespace RagChatbot.MVC.Controllers
 {
+    [Authorize]
     public class ChatController : Controller
     {
         private readonly IChatbotService _chatbotService;

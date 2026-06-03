@@ -1,16 +1,16 @@
-﻿using System;
+using RagChatbot.BLL.DTOs;
+using System;
 using System.Collections.Generic;
-using RagChatbot.DAL.Entities;
 
 namespace RagChatbot.BLL.Services.Interfaces
 {
     public interface ISubjectService
     {
-        IEnumerable<Subject> GetAllSubjects();
-        IEnumerable<Subject> SearchSubjects(string keyword);
-        Subject GetSubjectById(Guid id);
-        bool CreateSubject(Subject subject);
-        bool UpdateSubject(Subject subject);
+        IEnumerable<SubjectDto> GetAllSubjects();
+        IEnumerable<SubjectDto> SearchSubjects(string keyword);
+        SubjectDto GetSubjectById(Guid id);
+        bool CreateSubject(SubjectDto subjectDto);
+        bool UpdateSubject(SubjectDto subjectDto);
         bool DeleteSubject(Guid id);
     }
 }

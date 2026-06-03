@@ -1,29 +1,40 @@
-﻿@model RagChatbot.DAL.Entities.Subject
+@model RagChatbot.BLL.DTOs.SubjectDto
 @{
     ViewData["Title"] = "Thêm Môn học";
 }
 
-<div class="container mt-4">
-    <h2>Thêm Môn học mới</h2>
-    <hr />
-    <div class="row">
-        <div class="col-md-6">
+<div class="breadcrumb-app">
+    <a asp-action="Index"><i class="bi bi-book me-1"></i>Môn học</a>
+    <span class="sep"><i class="bi bi-chevron-right" style="font-size:10px"></i></span>
+    <span class="current">Thêm mới</span>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="form-card fade-in-up">
+            <div style="margin-bottom:24px">
+                <h4 style="font-size:18px;font-weight:700;color:var(--text-1);margin:0">Thêm Môn học mới</h4>
+                <p style="font-size:13px;color:var(--text-2);margin:4px 0 0">Điền thông tin môn học bên dưới</p>
+            </div>
+
             <form asp-action="Create" method="post">
-                <div class="form-group mb-3">
-                    <label asp-for="Code" class="control-label fw-bold"></label>
-                    <input asp-for="Code" class="form-control" placeholder="Ví dụ: PRN222" />
-                    <span asp-validation-for="Code" class="text-danger"></span>
+                <div style="margin-bottom:16px">
+                    <label asp-for="Code" class="form-label-app">Mã môn học</label>
+                    <input asp-for="Code" class="form-control-app" placeholder="VD: PRN222" />
+                    <span asp-validation-for="Code" class="field-error"></span>
                 </div>
-
-                <div class="form-group mb-3">
-                    <label asp-for="Name" class="control-label fw-bold"></label>
-                    <input asp-for="Name" class="form-control" placeholder="Ví dụ: .NET Core" />
-                    <span asp-validation-for="Name" class="text-danger"></span>
+                <div style="margin-bottom:24px">
+                    <label asp-for="Name" class="form-label-app">Tên môn học</label>
+                    <input asp-for="Name" class="form-control-app" placeholder="VD: Lập trình .NET Core" />
+                    <span asp-validation-for="Name" class="field-error"></span>
                 </div>
-
-                <div class="form-group">
-                    <button type="submit" class="btn btn-success">Lưu dữ liệu</button>
-                    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                <div style="display:flex;gap:10px">
+                    <button type="submit" class="btn-app btn-primary-app">
+                        <i class="bi bi-check-lg"></i> Lưu môn học
+                    </button>
+                    <a asp-action="Index" class="btn-app btn-ghost">
+                        <i class="bi bi-arrow-left"></i> Quay lại
+                    </a>
                 </div>
             </form>
         </div>

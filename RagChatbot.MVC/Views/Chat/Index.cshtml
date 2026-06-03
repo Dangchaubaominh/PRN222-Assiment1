@@ -1,109 +1,104 @@
-﻿@{
-    ViewData["Title"] = "Phòng Chat AI";
+@{
+    ViewData["Title"] = "Chat AI";
 }
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="card shadow-sm border-0">
+<div class="chat-wrapper fade-in-up">
+    <!-- Header -->
+    <div class="chat-header">
+        <div class="chat-avatar">🤖</div>
+        <div>
+            <div class="chat-title">Trợ lý AI — RAG Chatbot</div>
+            <div class="chat-subtitle">Đã sẵn sàng trả lời dựa trên tài liệu môn học</div>
+        </div>
+        <div style="margin-left:auto">
+            <a href="@Url.Action("Index", "Subject")" class="btn-app btn-sm-app"
+               style="background:rgba(255,255,255,.15);color:#fff;gap:4px">
+                <i class="bi bi-arrow-left"></i> Trở về
+            </a>
+        </div>
+    </div>
 
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-robot"></i> Trợ lý AI - Truy vấn Tài liệu</h5>
-                    <a href="@Url.Action("Index", "Subject")" class="btn btn-sm btn-light fw-bold text-primary">
-                        🔙 Trở về Môn học
-                    </a>
-                </div>
-
-                <div class="card-body" id="chat-box" style="height: 60vh; overflow-y: auto; background-color: #f0f2f5;">
-                    <div class="d-flex justify-content-start mb-3">
-                        <div class="p-3 rounded-3 bg-white shadow-sm border" style="max-width: 80%;">
-                            <strong class="text-primary">🤖 AI RAG-Bot:</strong><br />
-                            Xin chào! Tôi là trợ lý AI. Tôi đã học xong các tài liệu của môn học này. Bạn muốn hỏi tôi điều gì?
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-footer bg-white p-3 border-top-0">
-                    <form id="chat-form" class="d-flex align-items-center">
-                        <input type="hidden" id="SubjectId" value="@ViewBag.SubjectId" />
-                        <input type="text" id="userInput" class="form-control form-control-lg me-2 rounded-pill shadow-none"
-                               placeholder="Nhập câu hỏi của bạn vào đây..." required autocomplete="off" style="border-color: #dee2e6;" />
-                        <button type="submit" class="btn btn-primary btn-lg rounded-circle shadow-sm" id="sendBtn" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
-                            ➤
-                        </button>
-                    </form>
-                </div>
-
+    <!-- Messages -->
+    <div class="chat-messages" id="chatMessages">
+        <div class="msg-row">
+            <div class="msg-avatar ai"><i class="bi bi-robot"></i></div>
+            <div class="msg-bubble ai">
+                <strong>Xin chào! 👋</strong><br/>
+                Tôi là trợ lý AI đã được học từ tài liệu của môn học này.
+                Bạn có thể hỏi tôi bất cứ điều gì liên quan đến nội dung tài liệu.
             </div>
         </div>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input-area">
+        <input type="hidden" id="SubjectId" value="@ViewBag.SubjectId" />
+        <input type="text" id="userInput" class="chat-input"
+               placeholder="Nhập câu hỏi của bạn..." autocomplete="off" />
+        <button class="chat-send-btn" id="sendBtn" onclick="sendMessage()">
+            <i class="bi bi-send-fill" style="font-size:16px"></i>
+        </button>
     </div>
 </div>
 
 @section Scripts {
-    <script>
-        const chatBox = document.getElementById('chat-box');
-        const chatForm = document.getElementById('chat-form');
-        const userInput = document.getElementById('userInput');
+<script>
+    const messagesEl = document.getElementById('chatMessages');
+    const inputEl    = document.getElementById('userInput');
+    const sendBtn    = document.getElementById('sendBtn');
 
-        chatForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+    inputEl.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
 
-            const message = userInput.value.trim();
-            if(message === '') return;
+    function sendMessage() {
+        const text = inputEl.value.trim();
+        if (!text) return;
 
-            // 1. In tin nhắn của Người dùng ra màn hình (Bên phải, màu xanh)
-            appendMessage('Bạn', message, 'user');
-            userInput.value = '';
+        appendMsg(text, 'user');
+        inputEl.value = '';
+        sendBtn.disabled = true;
 
-            // 2. Tạm thời in ra tin nhắn giả lập AI đang nghĩ
-            appendMessage('🤖 AI RAG-Bot', 'Đang quét tài liệu và suy nghĩ...', 'ai', true);
+        const loadingId = 'loading-' + Date.now();
+        appendMsg('Đang tìm kiếm trong tài liệu<span class="typing-dots"></span>', 'ai', loadingId);
 
-            // =========================================================
-            // ĐOẠN ĐƯỢC THÊM VÀO: ĐẤU NỐI ĐƯỜNG TRUYỀN XUỐNG BACKEND C#
-            // =========================================================
-            const subjectId = document.getElementById('SubjectId').value;
-            const formData = new FormData();
-            formData.append('subjectId', subjectId);
-            formData.append('userMessage', message);
+        const subjectId = document.getElementById('SubjectId').value;
+        const fd = new FormData();
+        fd.append('subjectId', subjectId);
+        fd.append('userMessage', text);
 
-            // Gọi API xuống ChatController bằng Razor Url.Action chuẩn
-            fetch('@Url.Action("SendMessage", "Chat")', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
+        fetch('@Url.Action("SendMessage", "Chat")', { method: 'POST', body: fd })
+            .then(r => r.json())
             .then(data => {
-                // Xóa bong bóng "Đang suy nghĩ..." đi
-                const loadingMsg = document.getElementById('loading-msg');
-                if (loadingMsg) loadingMsg.remove();
-
-                // In câu trả lời thật của AI ra màn hình
-                appendMessage('🤖 AI RAG-Bot', data.reply, 'ai');
+                document.getElementById(loadingId)?.remove();
+                appendMsg(data.reply, 'ai');
             })
-            .catch(error => {
-                // Xóa hành vi chờ đợi nếu mạng lỗi
-                const loadingMsg = document.getElementById('loading-msg');
-                if (loadingMsg) loadingMsg.remove();
+            .catch(() => {
+                document.getElementById(loadingId)?.remove();
+                appendMsg('❌ Lỗi kết nối đến máy chủ. Vui lòng thử lại.', 'ai');
+            })
+            .finally(() => { sendBtn.disabled = false; inputEl.focus(); });
+    }
 
-                appendMessage('🤖 AI RAG-Bot', 'Lỗi kết nối đến máy chủ...', 'ai');
-            });
-            // =========================================================
-        });
+    function appendMsg(text, type, id = null) {
+        const row = document.createElement('div');
+        row.className = 'msg-row ' + type;
+        if (id) row.id = id;
 
-        function appendMessage(sender, text, type, isLoading = false) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `d-flex justify-content-${type === 'user' ? 'end' : 'start'} mb-3`;
+        const avatar = document.createElement('div');
+        avatar.className = 'msg-avatar ' + type;
+        avatar.innerHTML = type === 'ai'
+            ? '<i class="bi bi-robot"></i>'
+            : '<i class="bi bi-person-fill"></i>';
 
-            const innerDiv = document.createElement('div');
-            innerDiv.className = `p-3 rounded-3 shadow-sm ${type === 'user' ? 'bg-primary text-white' : 'bg-white border'}`;
-            innerDiv.style.maxWidth = '80%';
+        const bubble = document.createElement('div');
+        bubble.className = 'msg-bubble ' + type;
+        bubble.innerHTML = '<span style="white-space:pre-wrap">' + text + '</span>';
 
-            if(isLoading) msgDiv.id = 'loading-msg';
-            innerDiv.innerHTML = `<strong>${sender}:</strong><br/><span style="white-space: pre-wrap;">${text}</span>`;
-            msgDiv.appendChild(innerDiv);
-            chatBox.appendChild(msgDiv);
-
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-    </script>
+        row.appendChild(avatar);
+        row.appendChild(bubble);
+        messagesEl.appendChild(row);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+</script>
 }

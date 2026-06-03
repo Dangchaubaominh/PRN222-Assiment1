@@ -1,11 +1,13 @@
-using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RagChatbot.MVC.Models;
+using System.Diagnostics;
 
 namespace RagChatbot.MVC.Controllers;
-
+[Authorize]
 public class HomeController : Controller
 {
+   
     private readonly ILogger<HomeController> _logger;
 
     public HomeController(ILogger<HomeController> logger)

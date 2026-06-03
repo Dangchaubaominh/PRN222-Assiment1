@@ -1,0 +1,52 @@
+@{
+    ViewData["Title"] = "Đăng nhập";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng nhập — EduChatbot</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+<div class="login-page">
+    <div class="login-glow login-glow-1"></div>
+    <div class="login-glow login-glow-2"></div>
+
+    <div class="login-box fade-in-up">
+        <div class="login-logo">🎓</div>
+        <h1 class="login-title">EduChatbot</h1>
+        <p class="login-sub">Hệ thống học tập thông minh được hỗ trợ bởi AI</p>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="login-error">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i> @ViewBag.Error
+            </div>
+        }
+
+        <form asp-controller="Account" asp-action="Login" method="post">
+            <div style="margin-bottom:16px">
+                <label class="login-label"><i class="bi bi-person me-1"></i> Tên đăng nhập</label>
+                <input type="text" name="username" class="login-input" placeholder="Nhập tên đăng nhập" required autocomplete="username" />
+            </div>
+            <div style="margin-bottom:24px">
+                <label class="login-label"><i class="bi bi-lock me-1"></i> Mật khẩu</label>
+                <input type="password" name="password" class="login-input" placeholder="Nhập mật khẩu" required autocomplete="current-password" />
+            </div>
+            <button type="submit" class="login-btn">
+                Đăng nhập &nbsp;<i class="bi bi-arrow-right"></i>
+            </button>
+        </form>
+
+        <p style="text-align:center;font-size:11px;color:rgba(255,255,255,.25);margin-top:28px;margin-bottom:0">
+            © 2026 EduChatbot · AI-Powered Learning Platform
+        </p>
+    </div>
+</div>
+</body>
+</html>

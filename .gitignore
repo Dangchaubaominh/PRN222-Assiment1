@@ -482,3 +482,15 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# ===== EduChatbot custom rules =====
+# Uploaded documents (user files)
+**/wwwroot/uploads/
+
+# Sensitive config (copy appsettings.json.example for team)
+# appsettings.json     <- uncomment if you store secrets here
+appsettings.*.json
+!appsettings.Development.json
+
+# Gemini API keys & secrets
+*.secrets.json

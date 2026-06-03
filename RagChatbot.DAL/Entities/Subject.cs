@@ -29,5 +29,6 @@ namespace RagChatbot.DAL.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public virtual ICollection<Document> Documents { get; set; }
+        public virtual ICollection<UserSubject> UserSubjects { get; set; }
     }
 }

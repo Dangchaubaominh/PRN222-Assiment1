@@ -1,62 +1,74 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using RagChatbot.BLL.Services.Interfaces;
-using RagChatbot.DAL.Entities;
+using RagChatbot.BLL.DTOs;
+using System;
+using System.Security.Claims;
 
 namespace RagChatbot.MVC.Controllers
 {
+    [Authorize]
     public class SubjectController : Controller
     {
         private readonly ISubjectService _subjectService;
+        private readonly IUserSubjectService _userSubjectService;
 
-        public SubjectController(ISubjectService subjectService)
+        public SubjectController(ISubjectService subjectService, IUserSubjectService userSubjectService)
         {
             _subjectService = subjectService;
+            _userSubjectService = userSubjectService;
         }
 
-        // Hiện danh sách
         public IActionResult Index()
         {
-            var subjects = _subjectService.GetAllSubjects();
-            return View(subjects);
+            if (User.IsInRole("Admin"))
+                return View(_subjectService.GetAllSubjects());
+
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            return View(_userSubjectService.GetAssignedSubjects(userId));
         }
 
-        // Mở Form thêm mới
+        [Authorize(Roles = "Admin, Lecturer")]
         [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
 
-        // GET: Mở form Sửa (Lấy thông tin cũ điền vào form)
+        [Authorize(Roles = "Admin, Lecturer")]
+        [HttpPost]
+        public IActionResult Create(SubjectDto subjectDto)
+        {
+            if (ModelState.IsValid)
+            {
+                _subjectService.CreateSubject(subjectDto);
+                return RedirectToAction("Index");
+            }
+            return View(subjectDto);
+        }
+
+        [Authorize(Roles = "Admin, Lecturer")]
         [HttpGet]
         public IActionResult Edit(Guid id)
         {
             var subject = _subjectService.GetSubjectById(id);
-            if (subject == null)
-            {
-                return NotFound();
-            }
+            if (subject == null) return NotFound();
             return View(subject);
         }
 
-        // Nhận dữ liệu từ Form gửi lên
+        [Authorize(Roles = "Admin, Lecturer")]
         [HttpPost]
-        public IActionResult Create(Subject subject)
+        public IActionResult Edit(SubjectDto subjectDto)
         {
-            ModelState.Remove("Documents");
             if (ModelState.IsValid)
             {
-                var isSuccess = _subjectService.CreateSubject(subject);
-                if (isSuccess)
-                {
-                    // Thêm thành công thì quay về trang danh sách
-                    return RedirectToAction("Index");
-                }
-                ModelState.AddModelError("", "Tạo môn học thất bại do lỗi logic.");
+                _subjectService.UpdateSubject(subjectDto);
+                return RedirectToAction("Index");
             }
-            return View(subject);
+            return View(subjectDto);
         }
-        // POST: Xử lý chức năng Xóa
+
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult Delete(Guid id)
         {

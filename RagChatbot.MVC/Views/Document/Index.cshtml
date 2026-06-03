@@ -1,67 +1,128 @@
-﻿@model IEnumerable<RagChatbot.DAL.Entities.Document>
+@model IEnumerable<RagChatbot.BLL.DTOs.DocumentDto>
 @{
-    var subject = ViewBag.Subject as RagChatbot.DAL.Entities.Subject;
-    ViewData["Title"] = "Tài liệu môn " + subject?.Code;
+    var subject = ViewBag.Subject as RagChatbot.BLL.DTOs.SubjectDto;
+    ViewData["Title"] = "Tài liệu — " + subject?.Code;
 }
 
-<div class="container mt-4">
-    <h2>Quản lý Tài liệu: <span class="text-primary">@subject?.Code - @subject?.Name</span></h2>
-
-    <div class="mb-3 mt-4">
-        <a asp-action="Create" asp-route-subjectId="@subject?.Id" class="btn btn-success">Upload Tài Liệu Mới</a>
-        <a asp-controller="Subject" asp-action="Index" class="btn btn-secondary">Trở về Danh sách Môn học</a>
-    </div>
-
-    <table class="table table-bordered table-striped align-middle shadow-sm">
-        <thead class="table-dark">
-            <tr>
-                <th>Tên File</th>
-                <th class="text-center">Trạng thái</th>
-                <th class="text-center">Ngày Tải Lên</th>
-                <th class="text-center" style="width: 180px;">Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>
-                        <a asp-action="ViewDoc" asp-route-id="@item.Id" class="text-decoration-none fw-bold text-primary">
-                            @item.FileName
-                        </a>
-                    </td>
-                    <td class="text-center">
-                        @if (item.Status == RagChatbot.DAL.Entities.DocumentStatus.Pending)
-                        {
-                            <span class="badge bg-warning text-dark">Đang chờ AI đọc</span>
-                        }
-                        else if (item.Status == RagChatbot.DAL.Entities.DocumentStatus.Completed)
-                        {
-
-                            <span class="badge bg-success">AI đã học xong</span>
-                        }
-                        else
-                        {
-
-                            <span class="badge bg-danger">Lỗi đọc file</span>
-                        }
-                    </td>
-                    <td class="text-center">@item.UploadedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
-                    <td>
-                        <div class="d-flex justify-content-center gap-2">
-                            <a asp-action="Download" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
-                                Tải về
-                            </a>
-
-                            <form asp-action="Delete" method="post" class="m-0" onsubmit="return confirm('Xóa file này khỏi hệ thống?');">
-                                <input type="hidden" name="id" value="@item.Id" />
-                                <input type="hidden" name="subjectId" value="@item.SubjectId" />
-                                <button type="submit" class="btn btn-sm btn-danger">Xoá</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<div class="breadcrumb-app">
+    <a asp-controller="Subject" asp-action="Index"><i class="bi bi-book me-1"></i>Môn học</a>
+    <span class="sep"><i class="bi bi-chevron-right" style="font-size:10px"></i></span>
+    <span class="current">@subject?.Code — @subject?.Name</span>
 </div>
+
+<div class="page-header fade-in-up">
+    <div class="page-header-left">
+        <h1>Tài liệu</h1>
+        <p><span class="subject-code-badge">@subject?.Code</span> &nbsp;@subject?.Name</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+        @if (User.IsInRole("Admin") || User.IsInRole("Lecturer"))
+        {
+            <a asp-action="Create" asp-route-subjectId="@subject?.Id" class="btn-app btn-success-app">
+                <i class="bi bi-upload"></i> Upload tài liệu
+            </a>
+        }
+        <a asp-controller="Subject" asp-action="Index" class="btn-app btn-ghost">
+            <i class="bi bi-arrow-left"></i> Quay lại
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert-app alert-success-app fade-in-up">
+        <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["WarningMessage"] != null)
+{
+    <div class="alert-app alert-warning-app fade-in-up">
+        <i class="bi bi-exclamation-triangle-fill"></i> @TempData["WarningMessage"]
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="table-card">
+        <div class="empty-state">
+            <span class="empty-icon"><i class="bi bi-folder2-open"></i></span>
+            <div class="empty-title">Chưa có tài liệu nào</div>
+            <div class="empty-sub">
+                @if (User.IsInRole("Admin") || User.IsInRole("Lecturer"))
+                { <text>Hãy upload tài liệu đầu tiên để AI có thể học.</text> }
+                else
+                { <text>Môn học này chưa có tài liệu nào.</text> }
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="table-card fade-in-up">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Tài liệu</th>
+                    <th style="width:160px;text-align:center">Trạng thái AI</th>
+                    <th style="width:150px;text-align:center">Ngày tải lên</th>
+                    <th style="width:160px;text-align:center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var ext = System.IO.Path.GetExtension(item.FileName).ToLower();
+                    var iconClass = ext == ".pdf" ? "pdf" : ext == ".txt" ? "txt" : ext == ".docx" ? "docx" : "other";
+                    var iconName = ext == ".pdf" ? "bi-file-earmark-pdf" : ext == ".txt" ? "bi-file-earmark-text" : ext == ".docx" ? "bi-file-earmark-word" : "bi-file-earmark";
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:12px">
+                                <div class="file-icon @iconClass"><i class="bi @iconName"></i></div>
+                                <div>
+                                    <a asp-action="ViewDoc" asp-route-id="@item.Id"
+                                       style="font-size:14px;font-weight:600;color:var(--text-1)">@item.FileName</a>
+                                    <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;margin-top:1px">@ext.TrimStart('.')</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="text-align:center">
+                            @if (item.Status == "Completed")
+                            {
+                                <span class="badge-app badge-success"><i class="bi bi-robot"></i> Đã học xong</span>
+                            }
+                            else if (item.Status == "Pending" || item.Status == "Processing")
+                            {
+                                <span class="badge-app badge-warning"><i class="bi bi-hourglass-split"></i> Đang xử lý</span>
+                            }
+                            else
+                            {
+                                <span class="badge-app badge-danger"><i class="bi bi-x-circle"></i> Lỗi đọc file</span>
+                            }
+                        </td>
+                        <td style="text-align:center;font-size:12.5px;color:var(--text-2)">
+                            @item.UploadedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                        </td>
+                        <td>
+                            <div style="display:flex;justify-content:center;gap:6px">
+                                <a asp-action="Download" asp-route-id="@item.Id" class="btn-app btn-sm-app btn-ghost" title="Tải về">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                                @if (User.IsInRole("Admin") || User.IsInRole("Lecturer"))
+                                {
+                                    <form asp-action="Delete" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <input type="hidden" name="subjectId" value="@item.SubjectId" />
+                                        <button type="button" class="btn-app btn-sm-app btn-danger-app" title="Xoá"
+                                                onclick="swalDelete(this, 'Xoá tài liệu?', 'File &quot;@item.FileName&quot; sẽ bị xoá vĩnh viễn khỏi hệ thống.')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

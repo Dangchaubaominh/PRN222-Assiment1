@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Pgvector;
@@ -12,9 +13,11 @@ using RagChatbot.DAL.Data;
 namespace RagChatbot.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260603042557_AddUserTable")]
+    partial class AddUserTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,11 +115,6 @@ namespace RagChatbot.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -134,13 +132,12 @@ namespace RagChatbot.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("User", (string)null);
+                    b.ToTable("User");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            FullName = "Nguyễn Quản Trị",
                             Password = "123",
                             Role = "Admin",
                             Username = "admin"
@@ -148,7 +145,6 @@ namespace RagChatbot.DAL.Migrations
                         new
                         {
                             Id = 2,
-                            FullName = "Trần Thị Hương",
                             Password = "123",
                             Role = "Lecturer",
                             Username = "giangvien"
@@ -156,106 +152,10 @@ namespace RagChatbot.DAL.Migrations
                         new
                         {
                             Id = 3,
-                            FullName = "Lê Văn An",
                             Password = "123",
                             Role = "Student",
                             Username = "sinhvien"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            FullName = "Phạm Quốc Minh",
-                            Password = "123",
-                            Role = "Lecturer",
-                            Username = "gv_minh"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            FullName = "Ngô Thị Lan",
-                            Password = "123",
-                            Role = "Lecturer",
-                            Username = "gv_lan"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            FullName = "Đặng Châu Bảo",
-                            Password = "123",
-                            Role = "Student",
-                            Username = "sv_bao"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            FullName = "Hoàng Minh Tùng",
-                            Password = "123",
-                            Role = "Student",
-                            Username = "sv_tung"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            FullName = "Vũ Thị Linh",
-                            Password = "123",
-                            Role = "Student",
-                            Username = "sv_linh"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            FullName = "Bùi Thanh Khoa",
-                            Password = "123",
-                            Role = "Student",
-                            Username = "sv_khoa"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            FullName = "Trịnh Thị Ngân",
-                            Password = "123",
-                            Role = "Student",
-                            Username = "sv_ngan"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            FullName = "Lý Công Hiếu",
-                            Password = "123",
-                            Role = "Student",
-                            Username = "sv_hieu"
-                        },
-                        new
-                        {
-                            Id = 12,
-                            FullName = "Dương Thị Phương",
-                            Password = "123",
-                            Role = "Student",
-                            Username = "sv_phuong"
-                        },
-                        new
-                        {
-                            Id = 13,
-                            FullName = "Mai Xuân Đức",
-                            Password = "123",
-                            Role = "Student",
-                            Username = "sv_duc"
                         });
-                });
-
-            modelBuilder.Entity("RagChatbot.DAL.Entities.UserSubject", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("SubjectId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("UserId", "SubjectId");
-
-                    b.HasIndex("SubjectId");
-
-                    b.ToTable("UserSubjects");
                 });
 
             modelBuilder.Entity("RagChatbot.DAL.Entities.Document", b =>
@@ -280,35 +180,9 @@ namespace RagChatbot.DAL.Migrations
                     b.Navigation("Document");
                 });
 
-            modelBuilder.Entity("RagChatbot.DAL.Entities.UserSubject", b =>
-                {
-                    b.HasOne("RagChatbot.DAL.Entities.Subject", "Subject")
-                        .WithMany("UserSubjects")
-                        .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RagChatbot.DAL.Entities.User", "User")
-                        .WithMany("UserSubjects")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Subject");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("RagChatbot.DAL.Entities.Subject", b =>
                 {
                     b.Navigation("Documents");
-
-                    b.Navigation("UserSubjects");
-                });
-
-            modelBuilder.Entity("RagChatbot.DAL.Entities.User", b =>
-                {
-                    b.Navigation("UserSubjects");
                 });
 #pragma warning restore 612, 618
         }

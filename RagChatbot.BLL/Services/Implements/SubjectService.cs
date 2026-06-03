@@ -1,8 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+using RagChatbot.BLL.DTOs;
 using RagChatbot.BLL.Services.Interfaces;
 using RagChatbot.DAL.Entities;
 using RagChatbot.DAL.Repositories.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace RagChatbot.BLL.Services.Implements
 {
@@ -10,58 +12,64 @@ namespace RagChatbot.BLL.Services.Implements
     {
         private readonly ISubjectRepository _subjectRepository;
 
-        // Dependency Injection: Gọi tầng DAL (Repository) vào tầng BLL
         public SubjectService(ISubjectRepository subjectRepository)
         {
             _subjectRepository = subjectRepository;
         }
 
-        public IEnumerable<Subject> GetAllSubjects()
+        public IEnumerable<SubjectDto> GetAllSubjects()
         {
-            return _subjectRepository.GetAll();
+            return _subjectRepository.GetAll().Select(ToDto);
         }
 
-        public IEnumerable<Subject> SearchSubjects(string keyword)
+        public IEnumerable<SubjectDto> SearchSubjects(string keyword)
         {
-            return _subjectRepository.SearchByName(keyword);
+            return _subjectRepository.SearchByName(keyword).Select(ToDto);
         }
 
-        public Subject GetSubjectById(Guid id)
+        public SubjectDto GetSubjectById(Guid id)
         {
-            return _subjectRepository.GetById(id);
+            var entity = _subjectRepository.GetById(id);
+            return entity == null ? null : ToDto(entity);
         }
 
-        public bool CreateSubject(Subject subject)
+        public bool CreateSubject(SubjectDto subjectDto)
         {
-            // Logic nghiệp vụ: Ví dụ kiểm tra tên không được chứa ký tự cấm (nếu cần)
-            if (string.IsNullOrWhiteSpace(subject.Name) || string.IsNullOrWhiteSpace(subject.Code))
-                return false;
-
-            subject.Id = Guid.NewGuid();
-            subject.CreatedAt = DateTime.UtcNow;
-
-            _subjectRepository.Add(subject);
+            var entity = new Subject
+            {
+                Id = Guid.NewGuid(),
+                Code = subjectDto.Code,
+                Name = subjectDto.Name,
+                CreatedAt = DateTime.UtcNow
+            };
+            _subjectRepository.Add(entity);
             return true;
         }
 
-        public bool UpdateSubject(Subject subject)
+        public bool UpdateSubject(SubjectDto subjectDto)
         {
-            var existingSubject = _subjectRepository.GetById(subject.Id);
-            if (existingSubject == null) return false;
+            var existing = _subjectRepository.GetById(subjectDto.Id);
+            if (existing == null) return false;
 
-            existingSubject.Code = subject.Code;
-            existingSubject.Name = subject.Name;
-
-            _subjectRepository.Update(existingSubject);
+            existing.Code = subjectDto.Code;
+            existing.Name = subjectDto.Name;
+            _subjectRepository.Update(existing);
             return true;
         }
 
         public bool DeleteSubject(Guid id)
         {
             if (_subjectRepository.GetById(id) == null) return false;
-
             _subjectRepository.Delete(id);
             return true;
         }
+
+        private static SubjectDto ToDto(Subject s) => new SubjectDto
+        {
+            Id = s.Id,
+            Code = s.Code,
+            Name = s.Name,
+            CreatedAt = s.CreatedAt
+        };
     }
 }

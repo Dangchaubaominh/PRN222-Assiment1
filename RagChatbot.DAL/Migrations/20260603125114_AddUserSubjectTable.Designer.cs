@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Pgvector;
@@ -12,9 +13,11 @@ using RagChatbot.DAL.Data;
 namespace RagChatbot.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260603125114_AddUserSubjectTable")]
+    partial class AddUserSubjectTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,11 +115,6 @@ namespace RagChatbot.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -140,7 +138,6 @@ namespace RagChatbot.DAL.Migrations
                         new
                         {
                             Id = 1,
-                            FullName = "Nguyễn Quản Trị",
                             Password = "123",
                             Role = "Admin",
                             Username = "admin"
@@ -148,7 +145,6 @@ namespace RagChatbot.DAL.Migrations
                         new
                         {
                             Id = 2,
-                            FullName = "Trần Thị Hương",
                             Password = "123",
                             Role = "Lecturer",
                             Username = "giangvien"
@@ -156,90 +152,9 @@ namespace RagChatbot.DAL.Migrations
                         new
                         {
                             Id = 3,
-                            FullName = "Lê Văn An",
                             Password = "123",
                             Role = "Student",
                             Username = "sinhvien"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            FullName = "Phạm Quốc Minh",
-                            Password = "123",
-                            Role = "Lecturer",
-                            Username = "gv_minh"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            FullName = "Ngô Thị Lan",
-                            Password = "123",
-                            Role = "Lecturer",
-                            Username = "gv_lan"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            FullName = "Đặng Châu Bảo",
-                            Password = "123",
-                            Role = "Student",
-                            Username = "sv_bao"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            FullName = "Hoàng Minh Tùng",
-                            Password = "123",
-                            Role = "Student",
-                            Username = "sv_tung"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            FullName = "Vũ Thị Linh",
-                            Password = "123",
-                            Role = "Student",
-                            Username = "sv_linh"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            FullName = "Bùi Thanh Khoa",
-                            Password = "123",
-                            Role = "Student",
-                            Username = "sv_khoa"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            FullName = "Trịnh Thị Ngân",
-                            Password = "123",
-                            Role = "Student",
-                            Username = "sv_ngan"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            FullName = "Lý Công Hiếu",
-                            Password = "123",
-                            Role = "Student",
-                            Username = "sv_hieu"
-                        },
-                        new
-                        {
-                            Id = 12,
-                            FullName = "Dương Thị Phương",
-                            Password = "123",
-                            Role = "Student",
-                            Username = "sv_phuong"
-                        },
-                        new
-                        {
-                            Id = 13,
-                            FullName = "Mai Xuân Đức",
-                            Password = "123",
-                            Role = "Student",
-                            Username = "sv_duc"
                         });
                 });
 

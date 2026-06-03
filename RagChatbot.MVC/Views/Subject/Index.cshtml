@@ -1,41 +1,84 @@
-﻿@model IEnumerable<RagChatbot.DAL.Entities.Subject>
+@model IEnumerable<RagChatbot.BLL.DTOs.SubjectDto>
 @{
-    ViewData["Title"] = "Danh sách Môn học";
+    ViewData["Title"] = "Môn học";
 }
 
-<div class="container mt-4">
-    <h2>Danh sách Môn học</h2>
-    <a asp-action="Create" class="btn btn-primary mb-3">Thêm môn học mới</a>
-
-    <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th>Mã Môn</th>
-                <th>Tên Môn</th>
-                <th>Ngày Tạo</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@item.Code</td>
-                    <td>@item.Name</td>
-                    <td>@item.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
-                    <td>
-                        <a asp-controller="Document" asp-action="Index" asp-route-subjectId="@item.Id" class="btn btn-sm btn-info text-white">Xem Tài liệu</a>
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Sửa</a>
-
-                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xoá môn học này không?');">
-                            <button type="submit" class="btn btn-sm btn-danger">Xoá</button>
-                        </form>
-                        <a href="@Url.Action("Index", "Chat", new { subjectId = item.Id })" class="btn btn-sm btn-success">
-                            Vào Chat
-                        </a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<div class="page-header fade-in-up">
+    <div class="page-header-left">
+        <h1>Danh sách Môn học</h1>
+        <p>@Model.Count() môn học đang hiển thị</p>
+    </div>
+    @if (User.IsInRole("Admin") || User.IsInRole("Lecturer"))
+    {
+        <a asp-action="Create" class="btn-app btn-primary-app">
+            <i class="bi bi-plus-lg"></i> Thêm môn học
+        </a>
+    }
 </div>
+
+@if (!Model.Any())
+{
+    <div class="table-card">
+        <div class="empty-state">
+            <span class="empty-icon"><i class="bi bi-book"></i></span>
+            <div class="empty-title">Chưa có môn học nào</div>
+            <div class="empty-sub">
+                @if (User.IsInRole("Admin") || User.IsInRole("Lecturer"))
+                {
+                    <text>Hãy tạo môn học đầu tiên bằng nút "Thêm môn học" ở trên.</text>
+                }
+                else
+                {
+                    <text>Bạn chưa được thêm vào môn học nào. Vui lòng liên hệ Giảng viên.</text>
+                }
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row g-4 fade-in-up">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-6 col-xl-4">
+                <div class="subject-card">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
+                        <span class="subject-code-badge">@item.Code</span>
+                        <span style="font-size:11px;color:var(--text-3)">@item.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</span>
+                    </div>
+                    <div class="subject-name">@item.Name</div>
+                    <div class="subject-actions">
+                        <a asp-controller="Document" asp-action="Index" asp-route-subjectId="@item.Id"
+                           class="btn-app btn-sm-app btn-info-app">
+                            <i class="bi bi-folder2-open"></i> Tài liệu
+                        </a>
+                        <a href="@Url.Action("Index", "Chat", new { subjectId = item.Id })"
+                           class="btn-app btn-sm-app btn-success-app">
+                            <i class="bi bi-chat-dots"></i> Chat AI
+                        </a>
+                        @if (User.IsInRole("Admin") || User.IsInRole("Lecturer"))
+                        {
+                            <a asp-controller="Member" asp-action="Index" asp-route-subjectId="@item.Id"
+                               class="btn-app btn-sm-app btn-ghost">
+                                <i class="bi bi-people"></i> Thành viên
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@item.Id"
+                               class="btn-app btn-sm-app btn-warning-app">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        }
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
+                                <button type="button" class="btn-app btn-sm-app btn-danger-app"
+                                        onclick="swalDelete(this, 'Xoá môn học?', 'Môn học &quot;@item.Name&quot; và toàn bộ tài liệu sẽ bị xoá vĩnh viễn.')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

@@ -1,0 +1,57 @@
+@model RagChatbot.BLL.DTOs.UserManageDto
+@{
+    ViewData["Title"] = "Thêm Tài khoản";
+}
+
+<div class="breadcrumb-app">
+    <a asp-action="Index"><i class="bi bi-people me-1"></i>Tài khoản</a>
+    <span class="sep"><i class="bi bi-chevron-right" style="font-size:10px"></i></span>
+    <span class="current">Thêm mới</span>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="form-card fade-in-up">
+            <div style="margin-bottom:24px">
+                <h4 style="font-size:18px;font-weight:700;color:var(--text-1);margin:0">Thêm tài khoản mới</h4>
+                <p style="font-size:13px;color:var(--text-2);margin:4px 0 0">Điền đầy đủ thông tin để tạo tài khoản</p>
+            </div>
+
+            <form asp-action="Create" method="post">
+                <div style="margin-bottom:16px">
+                    <label asp-for="FullName" class="form-label-app">Họ và tên</label>
+                    <input asp-for="FullName" class="form-control-app" placeholder="VD: Nguyễn Văn A" />
+                    <span asp-validation-for="FullName" class="field-error"></span>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label asp-for="Username" class="form-label-app">Tên đăng nhập</label>
+                    <input asp-for="Username" class="form-control-app" placeholder="VD: nguyenvana" />
+                    <span asp-validation-for="Username" class="field-error"></span>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label asp-for="Password" class="form-label-app">Mật khẩu</label>
+                    <input asp-for="Password" type="password" class="form-control-app" placeholder="Nhập mật khẩu" />
+                    <span asp-validation-for="Password" class="field-error"></span>
+                </div>
+                <div style="margin-bottom:24px">
+                    <label asp-for="Role" class="form-label-app">Vai trò</label>
+                    <select asp-for="Role" class="form-control-app">
+                        <option value="">— Chọn vai trò —</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Lecturer">Giảng viên</option>
+                        <option value="Student">Sinh viên</option>
+                    </select>
+                    <span asp-validation-for="Role" class="field-error"></span>
+                </div>
+                <div style="display:flex;gap:10px">
+                    <button type="submit" class="btn-app btn-primary-app">
+                        <i class="bi bi-person-plus"></i> Tạo tài khoản
+                    </button>
+                    <a asp-action="Index" class="btn-app btn-ghost">
+                        <i class="bi bi-arrow-left"></i> Quay lại
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

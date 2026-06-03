@@ -1,0 +1,76 @@
+@model IEnumerable<RagChatbot.BLL.DTOs.UserManageDto>
+@{
+    ViewData["Title"] = "Quản lý Tài khoản";
+}
+
+<div class="page-header fade-in-up">
+    <div class="page-header-left">
+        <h1>Quản lý Tài khoản</h1>
+        <p>@Model.Count() tài khoản trong hệ thống</p>
+    </div>
+    <a asp-action="Create" class="btn-app btn-primary-app">
+        <i class="bi bi-person-plus"></i> Thêm tài khoản
+    </a>
+</div>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert-app alert-danger-app fade-in-up">
+        <i class="bi bi-exclamation-circle-fill" style="flex-shrink:0"></i>
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="table-card fade-in-up">
+    <table class="custom-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Họ tên</th>
+                <th>Tên đăng nhập</th>
+                <th>Vai trò</th>
+                <th style="text-align:center;width:120px">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td style="color:var(--text-3);font-size:12px">@item.Id</td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0">
+                                @(item.FullName?.Length > 0 ? item.FullName.Substring(0,1).ToUpper() : "?")
+                            </div>
+                            <span style="font-weight:600">@item.FullName</span>
+                        </div>
+                    </td>
+                    <td style="color:var(--text-2);font-size:13px">@item.Username</td>
+                    <td>
+                        @if (item.Role == "Admin")
+                        { <span class="badge-app badge-danger"><i class="bi bi-shield-fill"></i> Admin</span> }
+                        else if (item.Role == "Lecturer")
+                        { <span class="badge-app badge-purple"><i class="bi bi-mortarboard-fill"></i> Giảng viên</span> }
+                        else
+                        { <span class="badge-app badge-info"><i class="bi bi-person-fill"></i> Sinh viên</span> }
+                    </td>
+                    <td style="text-align:center">
+                        @if (item.Username != User.Identity.Name)
+                        {
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
+                                <button type="button" class="btn-app btn-sm-app btn-danger-app"
+                                        onclick="swalDelete(this, 'Xoá tài khoản?', 'Tài khoản &quot;@item.FullName&quot; (@item.Username) sẽ bị xoá vĩnh viễn.')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="badge-app badge-gray"><i class="bi bi-person-check"></i> Bạn</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

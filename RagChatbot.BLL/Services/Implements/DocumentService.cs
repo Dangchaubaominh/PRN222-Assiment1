@@ -1,7 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using RagChatbot.BLL.DTOs;
 using RagChatbot.BLL.Services.Interfaces;
 using RagChatbot.DAL.Entities;
 using RagChatbot.DAL.Repositories.Interfaces;
@@ -17,53 +19,47 @@ namespace RagChatbot.BLL.Services.Implements
             _documentRepository = documentRepository;
         }
 
-        public IEnumerable<Document> GetDocumentsBySubject(Guid subjectId)
+        public IEnumerable<DocumentDto> GetDocumentsBySubject(Guid subjectId)
         {
-            return _documentRepository.GetDocumentsBySubjectId(subjectId);
+            return _documentRepository.GetDocumentsBySubjectId(subjectId).Select(ToDto);
         }
 
-        public Document GetDocumentById(Guid id)
+        public DocumentDto GetDocumentById(Guid id)
         {
-            return _documentRepository.GetById(id);
+            var entity = _documentRepository.GetById(id);
+            return entity == null ? null : ToDto(entity);
         }
 
         public async Task<bool> UploadDocumentAsync(Guid subjectId, string fileName, Stream fileStream, string uploadPath)
         {
             try
             {
-                // 1. Kiểm tra và tạo thư mục nếu chưa tồn tại
                 if (!Directory.Exists(uploadPath))
-                {
                     Directory.CreateDirectory(uploadPath);
-                }
 
-                // 2. Chống trùng tên file: Thêm mã GUID ngẫu nhiên vào trước tên gốc
                 string uniqueFileName = Guid.NewGuid().ToString() + "_" + fileName;
                 string physicalFilePath = Path.Combine(uploadPath, uniqueFileName);
 
-                // 3. Copy file vật lý xuống ổ cứng của Server
                 using (var stream = new FileStream(physicalFilePath, FileMode.Create))
                 {
                     await fileStream.CopyToAsync(stream);
                 }
 
-                // 4. Lưu thông tin vào Database
                 var document = new Document
                 {
                     Id = Guid.NewGuid(),
                     SubjectId = subjectId,
-                    FileName = fileName, // Lưu tên gốc cho đẹp
-                    FilePath = "/uploads/" + uniqueFileName, // Đường dẫn tương đối để hiển thị lên Web
-                    Status = DocumentStatus.Pending, // Mặc định là Pending chờ Chatbot xử lý
+                    FileName = fileName,
+                    FilePath = "/uploads/" + uniqueFileName,
+                    Status = DocumentStatus.Pending,
                     UploadedAt = DateTime.UtcNow
                 };
 
                 _documentRepository.Add(document);
                 return true;
             }
-            catch 
+            catch
             {
-                
                 return false;
             }
         }
@@ -73,17 +69,22 @@ namespace RagChatbot.BLL.Services.Implements
             var document = _documentRepository.GetById(id);
             if (document == null) return false;
 
-            // 1. Xóa file vật lý trên ổ cứng trước
-            // Chuyển "/uploads/ten-file.pdf" thành đường dẫn thật trên máy
             string physicalPath = Path.Combine(rootPath, document.FilePath.TrimStart('/'));
             if (File.Exists(physicalPath))
-            {
                 File.Delete(physicalPath);
-            }
 
-            // 2. Xóa dữ liệu trong DB
             _documentRepository.Delete(id);
             return true;
         }
+
+        private static DocumentDto ToDto(Document d) => new DocumentDto
+        {
+            Id = d.Id,
+            SubjectId = d.SubjectId,
+            FileName = d.FileName,
+            FilePath = d.FilePath,
+            Status = d.Status.ToString(),
+            UploadedAt = d.UploadedAt
+        };
     }
 }

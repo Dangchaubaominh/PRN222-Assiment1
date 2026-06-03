@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RagChatbot.DAL.Data;
@@ -19,16 +19,19 @@ namespace RagChatbot.BLL.Extensions
                 npgsqlOptions => npgsqlOptions.UseVector()));
 
             // 2. Đăng ký Repositories (DAL)
+            services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ISubjectRepository, SubjectRepository>();
             services.AddScoped<IDocumentRepository, DocumentRepository>();
+            services.AddScoped<IUserSubjectRepository, UserSubjectRepository>();
 
             // 3. Đăng ký Services (BLL)
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<ISubjectService, SubjectService>();
             services.AddScoped<IDocumentService, DocumentService>();
+            services.AddScoped<IUserSubjectService, UserSubjectService>();
             services.AddScoped<IAIService, GeminiService>();
             services.AddScoped<IChatbotService, ChatbotService>();
             services.AddScoped<IDocumentProcessingService, DocumentProcessingService>();
-            
 
             return services;
         }

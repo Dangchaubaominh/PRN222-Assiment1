@@ -1,32 +1,42 @@
-﻿@model RagChatbot.DAL.Entities.Subject
+@model RagChatbot.BLL.DTOs.SubjectDto
 @{
     ViewData["Title"] = "Sửa Môn học";
 }
 
-<div class="container mt-4">
-    <h2>Sửa thông tin Môn học</h2>
-    <hr />
-    <div class="row">
-        <div class="col-md-6">
+<div class="breadcrumb-app">
+    <a asp-action="Index"><i class="bi bi-book me-1"></i>Môn học</a>
+    <span class="sep"><i class="bi bi-chevron-right" style="font-size:10px"></i></span>
+    <span class="current">Sửa thông tin</span>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="form-card fade-in-up">
+            <div style="margin-bottom:24px">
+                <h4 style="font-size:18px;font-weight:700;color:var(--text-1);margin:0">Sửa thông tin Môn học</h4>
+                <p style="font-size:13px;color:var(--text-2);margin:4px 0 0">Cập nhật thông tin môn học</p>
+            </div>
+
             <form asp-action="Edit" method="post">
                 <input type="hidden" asp-for="Id" />
                 <input type="hidden" asp-for="CreatedAt" />
-
-                <div class="form-group mb-3">
-                    <label asp-for="Code" class="control-label fw-bold">Mã Môn</label>
-                    <input asp-for="Code" class="form-control" />
-                    <span asp-validation-for="Code" class="text-danger"></span>
+                <div style="margin-bottom:16px">
+                    <label asp-for="Code" class="form-label-app">Mã môn học</label>
+                    <input asp-for="Code" class="form-control-app" />
+                    <span asp-validation-for="Code" class="field-error"></span>
                 </div>
-
-                <div class="form-group mb-3">
-                    <label asp-for="Name" class="control-label fw-bold">Tên Môn</label>
-                    <input asp-for="Name" class="form-control" />
-                    <span asp-validation-for="Name" class="text-danger"></span>
+                <div style="margin-bottom:24px">
+                    <label asp-for="Name" class="form-label-app">Tên môn học</label>
+                    <input asp-for="Name" class="form-control-app" />
+                    <span asp-validation-for="Name" class="field-error"></span>
                 </div>
-
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Cập nhật dữ liệu</button>
-                    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                <div style="display:flex;gap:10px">
+                    <button type="submit" class="btn-app btn-primary-app">
+                        <i class="bi bi-check-lg"></i> Cập nhật
+                    </button>
+                    <a asp-action="Index" class="btn-app btn-ghost">
+                        <i class="bi bi-arrow-left"></i> Quay lại
+                    </a>
                 </div>
             </form>
         </div>
