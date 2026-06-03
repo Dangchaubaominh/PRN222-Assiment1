@@ -151,58 +151,12 @@ Dự án tuân theo kiến trúc **3-Layer** nghiêm ngặt:
 ---
 
 ## 🚀 Cài đặt & Chạy dự án
-
 ### Yêu cầu
 
 - [.NET SDK 9.0+](https://dotnet.microsoft.com/download/dotnet/9.0)
 - [PostgreSQL 14+](https://www.postgresql.org/download/) với extension **pgvector**
-- Google Gemini API Key ([lấy tại đây](https://aistudio.google.com/apikey))
+- Google Gemini API Key 
 
-### Bước 1: Clone repository
-
-```bash
-git clone https://github.com/<your-username>/PRN222-Assiment1.git
-cd PRN222-Assiment1
-```
-
-### Bước 2: Cài pgvector
-
-```sql
--- Chạy trong PostgreSQL
-CREATE EXTENSION IF NOT EXISTS vector;
-```
-
-### Bước 3: Cấu hình
-
-Mở file `RagChatbot.MVC/appsettings.json` và điền thông tin:
-
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=RagChatbotDB;Username=YOUR_USER;Password=YOUR_PASSWORD"
-  },
-  "Gemini": {
-    "ApiKey": "YOUR_GEMINI_API_KEY"
-  }
-}
-```
-
-### Bước 4: Tạo database & chạy migration
-
-```bash
-dotnet ef database update --project RagChatbot.DAL --startup-project RagChatbot.MVC
-```
-
-> Migration sẽ tự động tạo tất cả bảng và seed dữ liệu mẫu (13 tài khoản).
-
-### Bước 5: Chạy ứng dụng
-
-```bash
-cd RagChatbot.MVC
-dotnet run
-```
-
-Mở trình duyệt tại `https://localhost:5001`
 
 ---
 
@@ -273,22 +227,6 @@ PRN222-Assiment1/
 
 ---
 
-## 🔐 Phân quyền người dùng
-
-| Tính năng | Admin | Giảng viên | Sinh viên |
-|---|:---:|:---:|:---:|
-| Xem danh sách môn học (được gán) | ✅ Tất cả | ✅ Được gán | ✅ Được gán |
-| Tạo / Sửa môn học | ✅ | ✅ | ❌ |
-| Xóa môn học | ✅ | ❌ | ❌ |
-| Upload tài liệu | ✅ | ✅ | ❌ |
-| Xóa tài liệu | ✅ | ✅ | ❌ |
-| Xem & tải tài liệu | ✅ | ✅ | ✅ |
-| Chat với AI | ✅ | ✅ | ✅ |
-| Gán thành viên vào môn | ✅ (tất cả) | ✅ (chỉ SV) | ❌ |
-| Quản lý tài khoản | ✅ | ❌ | ❌ |
-
----
-
 ## 📖 Hướng dẫn sử dụng
 
 ### Quy trình sử dụng cơ bản
@@ -332,28 +270,6 @@ PRN222-Assiment1/
    - Tìm kiếm cosine similarity trong database
    - Lấy top 3 đoạn văn bản liên quan nhất
    - Gửi context + câu hỏi cho Gemini để tạo câu trả lời
-
----
-
-## 👤 Tài khoản mặc định
-
-Hệ thống được seed sẵn 13 tài khoản (mật khẩu: `123`):
-
-| Tên đăng nhập | Họ tên | Vai trò |
-|---|---|---|
-| `admin` | Nguyễn Quản Trị | Admin |
-| `giangvien` | Trần Thị Hương | Giảng viên |
-| `gv_minh` | Phạm Quốc Minh | Giảng viên |
-| `gv_lan` | Ngô Thị Lan | Giảng viên |
-| `sinhvien` | Lê Văn An | Sinh viên |
-| `sv_bao` | Đặng Châu Bảo | Sinh viên |
-| `sv_tung` | Hoàng Minh Tùng | Sinh viên |
-| `sv_linh` | Vũ Thị Linh | Sinh viên |
-| `sv_khoa` | Bùi Thanh Khoa | Sinh viên |
-| `sv_ngan` | Trịnh Thị Ngân | Sinh viên |
-| `sv_hieu` | Lý Công Hiếu | Sinh viên |
-| `sv_phuong` | Dương Thị Phương | Sinh viên |
-| `sv_duc` | Mai Xuân Đức | Sinh viên |
 
 ---
 
