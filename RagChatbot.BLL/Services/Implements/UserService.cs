@@ -2,6 +2,7 @@ using RagChatbot.BLL.DTOs;
 using RagChatbot.BLL.Services.Interfaces;
 using RagChatbot.DAL.Entities;
 using RagChatbot.DAL.Repositories.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -32,14 +33,75 @@ namespace RagChatbot.BLL.Services.Implements
 
         public IEnumerable<UserManageDto> GetAllUsers()
         {
-            return _userRepository.GetAll().Select(u => new UserManageDto
+            return _userRepository.GetAll().Select(ToDto);
+        }
+
+        public UserManageDto GetByUsername(string username)
+        {
+            var u = _userRepository.GetByUsername(username);
+            return u == null ? null : ToDto(u);
+        }
+
+        public UserEditDto GetEditById(int id)
+        {
+            var u = _userRepository.GetById(id);
+            if (u == null) return null;
+            return new UserEditDto
             {
-                Id = u.Id,
+                Id       = u.Id,
                 Username = u.Username,
                 FullName = u.FullName,
-                Role = u.Role
-            });
+                Email    = u.Email,
+                Role     = u.Role
+            };
         }
+
+        public bool UpdateUserInfo(UserEditDto dto)
+        {
+            var entity = _userRepository.GetById(dto.Id);
+            if (entity == null) return false;
+
+            entity.FullName = dto.FullName;
+            entity.Email    = dto.Email;
+            entity.Role     = dto.Role;
+            _userRepository.Update(entity);
+            return true;
+        }
+
+        public string GeneratePasswordResetToken(string email)
+        {
+            var user = _userRepository.GetByEmail(email);
+            if (user == null) return null;
+
+            string token  = Guid.NewGuid().ToString("N"); // 32 ký tự hex
+            DateTime expiry = DateTime.UtcNow.AddMinutes(30);
+            _userRepository.SetResetToken(user.Id, token, expiry);
+            return token;
+        }
+
+        public bool IsValidResetToken(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token)) return false;
+            var user = _userRepository.GetByResetToken(token);
+            return user != null && user.PasswordResetExpiry > DateTime.UtcNow;
+        }
+
+        public bool ResetPassword(string token, string newPassword)
+        {
+            if (!IsValidResetToken(token)) return false;
+            var user = _userRepository.GetByResetToken(token);
+            _userRepository.UpdatePassword(user.Id, newPassword);
+            return true;
+        }
+
+        private static UserManageDto ToDto(DAL.Entities.User u) => new UserManageDto
+        {
+            Id       = u.Id,
+            Username = u.Username,
+            FullName = u.FullName,
+            Role     = u.Role,
+            Email    = u.Email
+        };
 
         public bool CreateUser(UserManageDto dto)
         {
@@ -47,8 +109,9 @@ namespace RagChatbot.BLL.Services.Implements
             {
                 Username = dto.Username,
                 Password = dto.Password,
-                Role = dto.Role,
-                FullName = dto.FullName
+                Role     = dto.Role,
+                FullName = dto.FullName,
+                Email    = dto.Email
             };
             _userRepository.Add(entity);
             return true;

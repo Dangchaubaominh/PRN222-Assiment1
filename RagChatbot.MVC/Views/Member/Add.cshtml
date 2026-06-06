@@ -2,6 +2,7 @@
 @{
     var subject = ViewBag.Subject as RagChatbot.BLL.DTOs.SubjectDto;
     ViewData["Title"] = "Thêm thành viên";
+    var users = Model.ToList();
 }
 
 <div class="breadcrumb-app">
@@ -22,7 +23,31 @@
     </a>
 </div>
 
-@if (!Model.Any())
+@{
+    int teacherCount = ViewBag.TeacherCount ?? 0;
+    int teacherLimit = ViewBag.TeacherLimit ?? 3;
+    bool teacherFull = teacherCount >= teacherLimit;
+}
+
+@if (User.IsInRole("Admin") && teacherFull)
+{
+    <div class="alert-app" style="background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
+        <i class="bi bi-exclamation-triangle-fill" style="color:#fbbf24;font-size:18px;flex-shrink:0"></i>
+        <div>
+            <div style="font-size:13px;font-weight:600;color:#fde68a;margin-bottom:2px">Đã đạt giới hạn giảng viên</div>
+            <div style="font-size:12px;color:rgba(253,230,138,.7)">Môn học này đã có <strong>@teacherCount / @teacherLimit</strong> giảng viên. Bạn chỉ có thể thêm Sinh viên.</div>
+        </div>
+    </div>
+}
+else if (User.IsInRole("Admin"))
+{
+    <div class="alert-app" style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);border-radius:12px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px">
+        <i class="bi bi-info-circle-fill" style="color:#a5b4fc;flex-shrink:0"></i>
+        <span style="font-size:12px;color:#c7d2fe">Giảng viên: <strong>@teacherCount / @teacherLimit</strong> &nbsp;·&nbsp; Tối đa @teacherLimit giảng viên/admin mỗi môn học</span>
+    </div>
+}
+
+@if (!users.Any())
 {
     <div class="table-card">
         <div class="empty-state">
@@ -34,47 +59,233 @@
 }
 else
 {
-    <div class="table-card fade-in-up">
-        <table class="custom-table">
-            <thead>
-                <tr>
-                    <th>Họ tên</th>
-                    <th>Tên đăng nhập</th>
-                    <th>Vai trò</th>
-                    <th style="text-align:center;width:120px">Thêm vào</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
+    <form id="bulkAddForm" asp-action="Add" method="post">
+        <input type="hidden" name="subjectId" value="@subject?.Id" />
+
+        <!-- Floating action bar (hiện khi có người được chọn) -->
+        <div class="bulk-action-bar" id="bulkBar">
+            <div style="display:flex;align-items:center;gap:12px">
+                <div class="bulk-count-badge" id="bulkCount">0</div>
+                <span style="font-size:14px;font-weight:600;color:var(--text-1)">người được chọn</span>
+            </div>
+            <div style="display:flex;gap:8px">
+                <button type="button" class="btn-app btn-ghost btn-sm-app" onclick="clearAll()">
+                    <i class="bi bi-x-circle"></i> Bỏ chọn tất cả
+                </button>
+                <button type="submit" class="btn-app btn-success-app btn-sm-app" id="bulkSubmitBtn">
+                    <i class="bi bi-person-plus-fill"></i>
+                    Thêm <span id="bulkSubmitCount">0</span> thành viên
+                </button>
+            </div>
+        </div>
+
+        <div class="table-card fade-in-up">
+            <table class="custom-table">
+                <thead>
                     <tr>
-                        <td>
-                            <div style="display:flex;align-items:center;gap:10px">
-                                <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0">
-                                    @(item.FullName?.Length > 0 ? item.FullName.Substring(0,1).ToUpper() : "?")
-                                </div>
-                                <span style="font-weight:600">@item.FullName</span>
-                            </div>
-                        </td>
-                        <td style="color:var(--text-2);font-size:13px">@item.Username</td>
-                        <td>
-                            @if (item.Role == "Lecturer")
-                            { <span class="badge-app badge-purple"><i class="bi bi-mortarboard-fill"></i> Giảng viên</span> }
-                            else
-                            { <span class="badge-app badge-info"><i class="bi bi-person-fill"></i> Sinh viên</span> }
-                        </td>
-                        <td style="text-align:center">
-                            <form asp-action="Add" method="post" class="d-inline">
-                                <input type="hidden" name="subjectId" value="@subject?.Id" />
-                                <input type="hidden" name="userId" value="@item.Id" />
-                                <button type="submit" class="btn-app btn-sm-app btn-success-app">
-                                    <i class="bi bi-person-plus"></i> Thêm
-                                </button>
-                            </form>
-                        </td>
+                        <th style="width:48px;text-align:center">
+                            <label class="cb-wrap" title="Chọn tất cả">
+                                <input type="checkbox" id="selectAll" onchange="toggleAll(this)" />
+                                <span class="cb-box"></span>
+                            </label>
+                        </th>
+                        <th>Họ tên</th>
+                        <th>Tên đăng nhập</th>
+                        <th>Vai trò</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    @foreach (var item in users)
+                    {
+                        <tr class="member-row" onclick="toggleRow(this)" style="cursor:pointer">
+                            <td style="text-align:center" onclick="event.stopPropagation()">
+                                <label class="cb-wrap" onclick="event.stopPropagation()">
+                                    <input type="checkbox"
+                                           name="selectedUserIds"
+                                           value="@item.Id"
+                                           class="user-cb"
+                                           onchange="updateCount()" />
+                                    <span class="cb-box"></span>
+                                </label>
+                            </td>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:10px">
+                                    <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0">
+                                        @(item.FullName?.Length > 0 ? item.FullName.Substring(0, 1).ToUpper() : "?")
+                                    </div>
+                                    <span style="font-weight:600">@item.FullName</span>
+                                </div>
+                            </td>
+                            <td style="color:var(--text-2);font-size:13px">@item.Username</td>
+                            <td>
+                                @if (item.Role == "Lecturer")
+                                { <span class="badge-app badge-purple"><i class="bi bi-mortarboard-fill"></i> Giảng viên</span> }
+                                else
+                                { <span class="badge-app badge-info"><i class="bi bi-person-fill"></i> Sinh viên</span> }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <!-- Footer hint -->
+            <div class="bulk-hint">
+                <i class="bi bi-mouse2"></i>
+                Click vào dòng hoặc checkbox để chọn — có thể chọn nhiều người cùng lúc
+            </div>
+        </div>
+    </form>
+}
+
+@section Scripts {
+<style>
+/* ---- Custom checkbox ---- */
+.cb-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+}
+.cb-wrap input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0; height: 0;
+}
+.cb-box {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 5px;
+    background: var(--surface-3);
+    transition: all .15s;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.cb-wrap input:checked ~ .cb-box {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+.cb-wrap input:checked ~ .cb-box::after {
+    content: '';
+    width: 10px; height: 6px;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(-45deg) translateY(-1px);
+    display: block;
+}
+.cb-wrap input:indeterminate ~ .cb-box {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+.cb-wrap input:indeterminate ~ .cb-box::after {
+    content: '';
+    width: 10px; height: 2px;
+    background: #fff;
+    display: block;
+}
+
+/* ---- Row selected highlight ---- */
+.member-row.selected {
+    background: rgba(99,102,241,.06) !important;
+}
+.member-row.selected td { border-color: rgba(99,102,241,.15); }
+
+/* ---- Floating bulk action bar ---- */
+.bulk-action-bar {
+    position: sticky;
+    top: calc(var(--topbar-height) + 8px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 20px;
+    background: var(--surface-2);
+    border: 1px solid var(--primary);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 20px rgba(99,102,241,.2);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transition: opacity .25s, transform .25s;
+}
+.bulk-action-bar.visible {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
+}
+.bulk-count-badge {
+    min-width: 32px; height: 32px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 800;
+    padding: 0 8px;
+}
+
+/* ---- Footer hint ---- */
+.bulk-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--text-3);
+    border-top: 1px solid var(--border);
+}
+</style>
+
+<script>
+function updateCount() {
+    const checked = document.querySelectorAll('.user-cb:checked');
+    const total   = document.querySelectorAll('.user-cb').length;
+    const count   = checked.length;
+
+    // Update counters
+    document.getElementById('bulkCount').textContent       = count;
+    document.getElementById('bulkSubmitCount').textContent = count;
+
+    // Show/hide action bar
+    const bar = document.getElementById('bulkBar');
+    if (count > 0) bar.classList.add('visible');
+    else           bar.classList.remove('visible');
+
+    // Update select-all indeterminate state
+    const sa = document.getElementById('selectAll');
+    if (count === 0)     { sa.checked = false; sa.indeterminate = false; }
+    else if (count === total) { sa.checked = true;  sa.indeterminate = false; }
+    else                 { sa.checked = false; sa.indeterminate = true;  }
+
+    // Highlight selected rows
+    document.querySelectorAll('.member-row').forEach(row => {
+        const cb = row.querySelector('.user-cb');
+        if (cb && cb.checked) row.classList.add('selected');
+        else                  row.classList.remove('selected');
+    });
+}
+
+function toggleAll(selectAllCb) {
+    document.querySelectorAll('.user-cb').forEach(cb => {
+        cb.checked = selectAllCb.checked;
+    });
+    updateCount();
+}
+
+function toggleRow(row) {
+    const cb = row.querySelector('.user-cb');
+    if (cb) {
+        cb.checked = !cb.checked;
+        updateCount();
+    }
+}
+
+function clearAll() {
+    document.querySelectorAll('.user-cb').forEach(cb => cb.checked = false);
+    document.getElementById('selectAll').checked       = false;
+    document.getElementById('selectAll').indeterminate = false;
+    updateCount();
+}
+</script>
 }

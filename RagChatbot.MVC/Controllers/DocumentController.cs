@@ -52,44 +52,57 @@ namespace RagChatbot.MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Guid subjectId, IFormFile file)
         {
-            if (file != null && file.Length > 0)
+            if (file == null || file.Length == 0)
             {
-                string uploadsFolder = Path.Combine(_env.WebRootPath, "uploads");
+                ModelState.AddModelError("", "Vui lòng chọn một file hợp lệ để tải lên.");
+                ViewBag.SubjectId = subjectId;
+                return View();
+            }
 
-                using (var stream = file.OpenReadStream())
+            string uploadsFolder = Path.Combine(_env.WebRootPath, "uploads");
+
+            using (var stream = file.OpenReadStream())
+            {
+                var result = await _documentService.UploadDocumentAsync(subjectId, file.FileName, stream, uploadsFolder);
+
+                switch (result)
                 {
-                    var isSuccess = await _documentService.UploadDocumentAsync(subjectId, file.FileName, stream, uploadsFolder);
+                    case DocumentUploadResult.Duplicate:
+                        ModelState.AddModelError("", $"Tài liệu \"{file.FileName}\" đã tồn tại trong môn học này. Vui lòng đổi tên file hoặc xóa tài liệu cũ trước khi upload lại.");
+                        ViewBag.SubjectId = subjectId;
+                        return View();
 
-                    if (isSuccess)
-                    {
+                    case DocumentUploadResult.Error:
+                        ModelState.AddModelError("", "Có lỗi xảy ra khi lưu file. Vui lòng thử lại.");
+                        ViewBag.SubjectId = subjectId;
+                        return View();
+
+                    case DocumentUploadResult.Success:
                         var uploadedDoc = _documentService.GetDocumentsBySubject(subjectId)
                                                           .FirstOrDefault(d => d.FileName == file.FileName);
-
                         if (uploadedDoc != null)
                         {
                             bool isProcessed = await _docProcessingService.ProcessDocumentAsync(uploadedDoc.Id, _env.WebRootPath);
-
                             if (isProcessed)
                                 TempData["SuccessMessage"] = "Upload và nạp tri thức cho AI thành công!";
                             else
                                 TempData["WarningMessage"] = "Upload thành công nhưng AI không thể đọc nội dung file này.";
                         }
-
                         return RedirectToAction("Index", new { subjectId });
-                    }
                 }
             }
 
-            ModelState.AddModelError("", "Vui lòng chọn một file hợp lệ để tải lên.");
-            ViewBag.SubjectId = subjectId;
-            return View();
+            return RedirectToAction("Index", new { subjectId });
         }
 
         [Authorize(Roles = "Admin, Lecturer")]
         [HttpPost]
         public IActionResult Delete(Guid id, Guid subjectId)
         {
+            var doc = _documentService.GetDocumentById(id);
+            string fileName = doc?.FileName ?? "Tài liệu";
             _documentService.DeleteDocument(id, _env.WebRootPath);
+            TempData["SuccessMessage"] = $"Đã xóa tài liệu \"{fileName}\" thành công.";
             return RedirectToAction("Index", new { subjectId });
         }
 
@@ -119,6 +132,11 @@ namespace RagChatbot.MVC.Controllers
                 if (System.IO.File.Exists(physicalPath))
                     ViewBag.FileContent = System.IO.File.ReadAllText(physicalPath);
             }
+
+            // Load các chunk AI đã học từ tài liệu này
+            var chunks = _documentService.GetChunksByDocumentId(id).ToList();
+            ViewBag.Chunks = chunks;
+            ViewBag.TotalWords = chunks.Sum(c => c.WordCount);
 
             return View(document);
         }

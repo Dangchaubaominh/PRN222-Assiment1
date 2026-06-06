@@ -17,5 +17,7 @@ namespace RagChatbot.DAL.Repositories.Interfaces
 
         // Cập nhật trạng thái (Dùng cho lúc Chatbot đang xử lý file)
         void UpdateStatus(Guid id, DocumentStatus newStatus);
+
+        bool ExistsByFileName(Guid subjectId, string fileName);
     }
 }

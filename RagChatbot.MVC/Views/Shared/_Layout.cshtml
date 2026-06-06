@@ -115,6 +115,41 @@
         document.getElementById('sidebarOverlay').classList.remove('show');
     }
 
+    // ── Toast notifications (TempData từ controller) ──────────────────────────
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <text>
+        Swal.fire({
+            toast: true, position: 'top-end', icon: 'success',
+            title: @Json.Serialize(TempData["SuccessMessage"].ToString()),
+            showConfirmButton: false, timer: 4000, timerProgressBar: true,
+            customClass: { popup: 'swal-toast-custom' }
+        });
+        </text>
+    }
+    @if (TempData["WarningMessage"] != null)
+    {
+        <text>
+        Swal.fire({
+            toast: true, position: 'top-end', icon: 'warning',
+            title: @Json.Serialize(TempData["WarningMessage"].ToString()),
+            showConfirmButton: false, timer: 5000, timerProgressBar: true,
+            customClass: { popup: 'swal-toast-custom' }
+        });
+        </text>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <text>
+        Swal.fire({
+            toast: true, position: 'top-end', icon: 'error',
+            title: @Json.Serialize(TempData["ErrorMessage"].ToString()),
+            showConfirmButton: false, timer: 5000, timerProgressBar: true,
+            customClass: { popup: 'swal-toast-custom' }
+        });
+        </text>
+    }
+
     function swalDelete(btn, title, message) {
         Swal.fire({
             title: title,
@@ -145,6 +180,7 @@
     .swal2-title { font-size: 18px !important; font-weight: 700 !important; }
     .swal2-html-container { font-size: 14px !important; }
     .swal-btn-confirm, .swal-btn-cancel { border-radius: 8px !important; font-size: 13px !important; font-weight: 600 !important; padding: 10px 20px !important; }
+    .swal-toast-custom { font-family: 'Inter', sans-serif !important; font-size: 14px !important; font-weight: 500 !important; }
 </style>
 
 @await RenderSectionAsync("Scripts", required: false)

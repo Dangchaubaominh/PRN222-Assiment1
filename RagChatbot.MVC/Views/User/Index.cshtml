@@ -13,14 +13,6 @@
     </a>
 </div>
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert-app alert-danger-app fade-in-up">
-        <i class="bi bi-exclamation-circle-fill" style="flex-shrink:0"></i>
-        @TempData["ErrorMessage"]
-    </div>
-}
-
 <div class="table-card fade-in-up">
     <table class="custom-table">
         <thead>
@@ -55,19 +47,25 @@
                         { <span class="badge-app badge-info"><i class="bi bi-person-fill"></i> Sinh viên</span> }
                     </td>
                     <td style="text-align:center">
-                        @if (item.Username != User.Identity.Name)
-                        {
-                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
-                                <button type="button" class="btn-app btn-sm-app btn-danger-app"
-                                        onclick="swalDelete(this, 'Xoá tài khoản?', 'Tài khoản &quot;@item.FullName&quot; (@item.Username) sẽ bị xoá vĩnh viễn.')">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </form>
-                        }
-                        else
-                        {
-                            <span class="badge-app badge-gray"><i class="bi bi-person-check"></i> Bạn</span>
-                        }
+                        <div style="display:flex;justify-content:center;gap:6px">
+                            <a asp-action="Edit" asp-route-id="@item.Id"
+                               class="btn-app btn-sm-app btn-warning-app" title="Chỉnh sửa">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            @if (item.Username != User.Identity.Name)
+                            {
+                                <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
+                                    <button type="button" class="btn-app btn-sm-app btn-danger-app" title="Xoá"
+                                            onclick="swalDelete(this, 'Xoá tài khoản?', 'Tài khoản &quot;@item.FullName&quot; (@item.Username) sẽ bị xoá vĩnh viễn.')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="badge-app badge-gray"><i class="bi bi-person-check"></i> Bạn</span>
+                            }
+                        </div>
                     </td>
                 </tr>
             }

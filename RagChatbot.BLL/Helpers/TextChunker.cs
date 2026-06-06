@@ -2,8 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace RagChatbot.BLL.Helpers // Khi nằm trong thư mục Helpers, namespace phải trỏ đúng về đây
+namespace RagChatbot.BLL.Helpers
 {
+    /// <summary>
+    /// [Deprecated] Chunker cắt cứng theo số từ — không tôn trọng ranh giới câu.
+    /// Hệ thống hiện dùng <see cref="SemanticChunker"/> thay thế.
+    /// </summary>
+    [Obsolete("Dùng SemanticChunker thay thế. TextChunker cắt cứng theo từ, không tôn trọng ranh giới câu.")]
     public static class TextChunker
     {
         public static List<string> SplitText(string text, int chunkSize = 300, int overlapSize = 50)

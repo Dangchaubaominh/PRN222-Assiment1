@@ -1,0 +1,62 @@
+@{
+    ViewData["Title"] = "Kết Quả Seed";
+    var results = ViewBag.Results as List<string> ?? new();
+    int success = results.Count(r => r.StartsWith("✅"));
+    int warning = results.Count(r => r.StartsWith("⚠️"));
+    int failed  = results.Count(r => r.StartsWith("❌"));
+}
+
+<div class="page-header fade-in-up">
+    <div class="page-header-left">
+        <h1>Kết Quả Seed Tài Liệu</h1>
+        <p>Hoàn tất quá trình tạo tài liệu IT</p>
+    </div>
+    <a asp-controller="Subject" asp-action="Index" class="btn-app btn-primary-app">
+        <i class="bi bi-book"></i> Xem môn học
+    </a>
+</div>
+
+<!-- Summary -->
+<div class="chunk-stats-row fade-in-up" style="max-width:600px">
+    <div class="chunk-stat-card">
+        <div class="csc-icon" style="background:rgba(16,185,129,.12);color:#10b981"><i class="bi bi-check-circle-fill"></i></div>
+        <div><div class="csc-value" style="color:#10b981">@success</div><div class="csc-label">Thành công</div></div>
+    </div>
+    <div class="chunk-stat-card">
+        <div class="csc-icon" style="background:rgba(245,158,11,.12);color:#f59e0b"><i class="bi bi-exclamation-triangle-fill"></i></div>
+        <div><div class="csc-value" style="color:#f59e0b">@warning</div><div class="csc-label">Upload OK, AI lỗi</div></div>
+    </div>
+    <div class="chunk-stat-card">
+        <div class="csc-icon" style="background:rgba(239,68,68,.12);color:#ef4444"><i class="bi bi-x-circle-fill"></i></div>
+        <div><div class="csc-value" style="color:#ef4444">@failed</div><div class="csc-label">Thất bại</div></div>
+    </div>
+</div>
+
+<!-- Detail log -->
+<div class="table-card fade-in-up" style="max-width:700px">
+    <div style="padding:20px">
+        <div style="font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">Chi tiết</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+            @foreach (var r in results)
+            {
+                var isOk   = r.StartsWith("✅");
+                var isWarn = r.StartsWith("⚠️");
+                var color  = isOk ? "#10b981" : isWarn ? "#f59e0b" : "#ef4444";
+                var bg     = isOk ? "rgba(16,185,129,.06)" : isWarn ? "rgba(245,158,11,.06)" : "rgba(239,68,68,.06)";
+                <div style="padding:8px 12px;border-radius:7px;font-size:13px;background:@bg;color:var(--text-2);border-left:3px solid @color">
+                    @r
+                </div>
+            }
+        </div>
+
+        @if (warning > 0 || failed > 0)
+        {
+            <div style="margin-top:16px;padding:12px 14px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;font-size:12px;color:var(--text-2);line-height:1.7">
+                <i class="bi bi-lightbulb-fill" style="color:#f59e0b"></i>
+                <strong>Nguyên nhân lỗi thường gặp:</strong> Gemini API Key chưa được cấu hình hoặc đã hết quota.
+                Kiểm tra <code>appsettings.json</code> → <code>Gemini:ApiKey</code>.
+                Với các file upload OK (⚠️), bạn vẫn có thể xem nội dung nhưng AI chưa học được.
+            </div>
+        }
+    </div>
+</div>

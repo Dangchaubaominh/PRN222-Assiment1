@@ -43,7 +43,20 @@
             </button>
         </form>
 
-        <p style="text-align:center;font-size:11px;color:rgba(255,255,255,.25);margin-top:28px;margin-bottom:0">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div style="background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:10px;padding:12px 16px;margin-top:16px;font-size:13px;color:#6ee7b7;text-align:center">
+                <i class="bi bi-check-circle-fill me-1"></i> @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <div style="text-align:center;margin-top:16px">
+            <a asp-action="ForgotPassword" style="font-size:13px;color:rgba(255,255,255,.45);text-decoration:none">
+                <i class="bi bi-question-circle me-1"></i>Quên mật khẩu?
+            </a>
+        </div>
+
+        <p style="text-align:center;font-size:11px;color:rgba(255,255,255,.25);margin-top:20px;margin-bottom:0">
             © 2026 EduChatbot · AI-Powered Learning Platform
         </p>
     </div>

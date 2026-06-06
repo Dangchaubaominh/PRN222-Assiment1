@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using RagChatbot.BLL.Services.Interfaces;
@@ -10,47 +10,42 @@ namespace RagChatbot.MVC.Controllers
 {
     public class AccountController : Controller
     {
-        // Nhúng Service của BLL vào, không nhúng DbContext
-        private readonly IUserService _userService;
+        private readonly IUserService  _userService;
+        private readonly IEmailService _emailService;
 
-        public AccountController(IUserService userService)
+        public AccountController(IUserService userService, IEmailService emailService)
         {
-            _userService = userService;
+            _userService  = userService;
+            _emailService = emailService;
         }
+
+        // ── Login ──────────────────────────────────────────────────────────────
 
         [HttpGet]
         public IActionResult Login()
         {
             if (User.Identity.IsAuthenticated)
-            {
                 return RedirectToAction("Index", "Home");
-            }
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> Login(string username, string password)
         {
-            // 1. Giao việc kiểm tra cho tầng BLL (trả về DTO)
             var userDto = _userService.Authenticate(username, password);
-
-            // 2. Nếu đăng nhập thành công
             if (userDto != null)
             {
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, userDto.Id.ToString()),
-                    new Claim(ClaimTypes.Name, userDto.Username),
+                    new Claim(ClaimTypes.Name,      userDto.Username),
                     new Claim(ClaimTypes.GivenName, userDto.FullName ?? userDto.Username),
-                    new Claim(ClaimTypes.Role, userDto.Role)
+                    new Claim(ClaimTypes.Role,      userDto.Role)
                 };
 
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                await HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(claimsIdentity));
-
+                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                                             new ClaimsPrincipal(identity));
                 return RedirectToAction("Index", "Home");
             }
 
@@ -66,9 +61,79 @@ namespace RagChatbot.MVC.Controllers
         }
 
         [HttpGet]
-        public IActionResult AccessDenied()
+        public IActionResult AccessDenied() => View();
+
+        // ── Forgot Password ────────────────────────────────────────────────────
+
+        [HttpGet]
+        public IActionResult ForgotPassword() => View();
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(string email)
         {
+            // Luôn hiển thị thông báo giống nhau (bảo mật — không tiết lộ email có tồn tại không)
+            ViewBag.Sent = true;
+
+            string token = _userService.GeneratePasswordResetToken(email);
+            if (token != null)
+            {
+                // Tìm tên người dùng để cá nhân hoá email
+                var user = _userService.GetAllUsers();
+                string fullName = "";
+                foreach (var u in user)
+                    if (u.Email == email) { fullName = u.FullName ?? u.Username; break; }
+
+                string resetLink = Url.Action("ResetPassword", "Account",
+                                              new { token }, Request.Scheme);
+
+                await _emailService.SendPasswordResetEmailAsync(email, fullName, resetLink);
+            }
+
             return View();
+        }
+
+        // ── Reset Password ─────────────────────────────────────────────────────
+
+        [HttpGet]
+        public IActionResult ResetPassword(string token)
+        {
+            if (!_userService.IsValidResetToken(token))
+            {
+                ViewBag.Expired = true;
+                return View();
+            }
+
+            ViewBag.Token = token;
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ResetPassword(string token, string newPassword, string confirmPassword)
+        {
+            if (!_userService.IsValidResetToken(token))
+            {
+                ViewBag.Expired = true;
+                return View();
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                ViewBag.Token = token;
+                ViewBag.Error = "Mật khẩu xác nhận không khớp.";
+                return View();
+            }
+
+            if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 4)
+            {
+                ViewBag.Token = token;
+                ViewBag.Error = "Mật khẩu phải có ít nhất 4 ký tự.";
+                return View();
+            }
+
+            _userService.ResetPassword(token, newPassword);
+
+            TempData["SuccessMessage"] = "Đặt lại mật khẩu thành công! Hãy đăng nhập bằng mật khẩu mới.";
+            return RedirectToAction("Login");
         }
     }
 }

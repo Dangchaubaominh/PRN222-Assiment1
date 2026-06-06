@@ -42,6 +42,7 @@ namespace RagChatbot.MVC.Controllers
             if (ModelState.IsValid)
             {
                 _subjectService.CreateSubject(subjectDto);
+                TempData["SuccessMessage"] = $"Đã tạo môn học \"{subjectDto.Name}\" thành công.";
                 return RedirectToAction("Index");
             }
             return View(subjectDto);
@@ -63,6 +64,7 @@ namespace RagChatbot.MVC.Controllers
             if (ModelState.IsValid)
             {
                 _subjectService.UpdateSubject(subjectDto);
+                TempData["SuccessMessage"] = $"Đã cập nhật môn học \"{subjectDto.Name}\" thành công.";
                 return RedirectToAction("Index");
             }
             return View(subjectDto);
@@ -72,7 +74,10 @@ namespace RagChatbot.MVC.Controllers
         [HttpPost]
         public IActionResult Delete(Guid id)
         {
+            var subject = _subjectService.GetSubjectById(id);
+            string subjectName = subject?.Name ?? "Môn học";
             _subjectService.DeleteSubject(id);
+            TempData["SuccessMessage"] = $"Đã xóa môn học \"{subjectName}\" thành công.";
             return RedirectToAction("Index");
         }
     }

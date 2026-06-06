@@ -1,0 +1,104 @@
+@model RagChatbot.BLL.DTOs.UserEditDto
+@{
+    ViewData["Title"] = "Chỉnh sửa tài khoản";
+}
+
+<div class="breadcrumb-app">
+    <a asp-action="Index"><i class="bi bi-people me-1"></i>Tài khoản</a>
+    <span class="sep"><i class="bi bi-chevron-right" style="font-size:10px"></i></span>
+    <span class="current">Chỉnh sửa — @Model.Username</span>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="form-card fade-in-up">
+            <div style="margin-bottom:24px">
+                <h4 style="font-size:18px;font-weight:700;color:var(--text-1);margin:0">Chỉnh sửa tài khoản</h4>
+                <p style="font-size:13px;color:var(--text-2);margin:4px 0 0">
+                    Admin có thể cập nhật thông tin nhưng <strong>không thể đổi mật khẩu</strong> của người dùng.
+                </p>
+            </div>
+
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="Username" />
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start">
+                        <i class="bi bi-exclamation-triangle-fill" style="color:#f87171;flex-shrink:0;margin-top:2px"></i>
+                        <div style="font-size:13px;color:#fca5a5">
+                            @Html.ValidationSummary(excludePropertyErrors: false, message: "", htmlAttributes: new { @style = "margin:0;padding:0;list-style:none" })
+                        </div>
+                    </div>
+                }
+
+                <!-- Tên đăng nhập (readonly) -->
+                <div style="margin-bottom:18px">
+                    <label class="form-label-app">
+                        <i class="bi bi-person me-1"></i> Tên đăng nhập
+                    </label>
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <input type="text" value="@Model.Username" class="form-control-app"
+                               style="background:rgba(255,255,255,.04);color:var(--text-3);cursor:not-allowed" readonly />
+                        <span class="badge-app badge-gray" style="white-space:nowrap;flex-shrink:0">
+                            <i class="bi bi-lock-fill"></i> Không đổi được
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Họ tên -->
+                <div style="margin-bottom:18px">
+                    <label class="form-label-app" asp-for="FullName">
+                        <i class="bi bi-person-badge me-1"></i> Họ và tên
+                    </label>
+                    <input asp-for="FullName" class="form-control-app" placeholder="Nhập họ và tên" />
+                    <span asp-validation-for="FullName" style="font-size:12px;color:#f87171;display:block;margin-top:4px"></span>
+                </div>
+
+                <!-- Gmail -->
+                <div style="margin-bottom:18px">
+                    <label class="form-label-app" asp-for="Email">
+                        <i class="bi bi-envelope me-1"></i> Gmail
+                    </label>
+                    <input asp-for="Email" type="email" class="form-control-app" placeholder="example@gmail.com" />
+                    <span asp-validation-for="Email" style="font-size:12px;color:#f87171;display:block;margin-top:4px"></span>
+                    <div style="font-size:11px;color:var(--text-3);margin-top:4px">
+                        <i class="bi bi-info-circle me-1"></i>Gmail này dùng để đăng nhập và nhận link đặt lại mật khẩu.
+                    </div>
+                </div>
+
+                <!-- Vai trò -->
+                <div style="margin-bottom:28px">
+                    <label class="form-label-app" asp-for="Role">
+                        <i class="bi bi-shield me-1"></i> Vai trò
+                    </label>
+                    <select asp-for="Role" class="form-control-app">
+                        <option value="Admin">Quản trị viên (Admin)</option>
+                        <option value="Lecturer">Giảng viên (Lecturer)</option>
+                        <option value="Student">Sinh viên (Student)</option>
+                    </select>
+                    <span asp-validation-for="Role" style="font-size:12px;color:#f87171;display:block;margin-top:4px"></span>
+                </div>
+
+                <!-- Thông báo mật khẩu -->
+                <div class="alert-app alert-info-app" style="margin-bottom:24px">
+                    <i class="bi bi-key-fill" style="flex-shrink:0"></i>
+                    <div style="font-size:12px">
+                        <strong>Mật khẩu không thể thay đổi tại đây.</strong>
+                        Người dùng có thể tự đặt lại mật khẩu thông qua tính năng <strong>Quên mật khẩu</strong> ở trang đăng nhập.
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:10px">
+                    <button type="submit" class="btn-app btn-primary-app">
+                        <i class="bi bi-check-lg"></i> Lưu thay đổi
+                    </button>
+                    <a asp-action="Index" class="btn-app btn-ghost">
+                        <i class="bi bi-arrow-left"></i> Hủy
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -13,10 +13,12 @@ namespace RagChatbot.BLL.Services.Implements
     public class DocumentService : IDocumentService
     {
         private readonly IDocumentRepository _documentRepository;
+        private readonly IDocumentChunkRepository _chunkRepository;
 
-        public DocumentService(IDocumentRepository documentRepository)
+        public DocumentService(IDocumentRepository documentRepository, IDocumentChunkRepository chunkRepository)
         {
             _documentRepository = documentRepository;
+            _chunkRepository = chunkRepository;
         }
 
         public IEnumerable<DocumentDto> GetDocumentsBySubject(Guid subjectId)
@@ -30,8 +32,11 @@ namespace RagChatbot.BLL.Services.Implements
             return entity == null ? null : ToDto(entity);
         }
 
-        public async Task<bool> UploadDocumentAsync(Guid subjectId, string fileName, Stream fileStream, string uploadPath)
+        public async Task<DocumentUploadResult> UploadDocumentAsync(Guid subjectId, string fileName, Stream fileStream, string uploadPath)
         {
+            if (_documentRepository.ExistsByFileName(subjectId, fileName))
+                return DocumentUploadResult.Duplicate;
+
             try
             {
                 if (!Directory.Exists(uploadPath))
@@ -56,11 +61,11 @@ namespace RagChatbot.BLL.Services.Implements
                 };
 
                 _documentRepository.Add(document);
-                return true;
+                return DocumentUploadResult.Success;
             }
             catch
             {
-                return false;
+                return DocumentUploadResult.Error;
             }
         }
 
@@ -75,6 +80,18 @@ namespace RagChatbot.BLL.Services.Implements
 
             _documentRepository.Delete(id);
             return true;
+        }
+
+        public IEnumerable<DocumentChunkDto> GetChunksByDocumentId(Guid documentId)
+        {
+            return _chunkRepository.GetByDocumentId(documentId)
+                .Select((chunk, index) => new DocumentChunkDto
+                {
+                    Id          = chunk.Id,
+                    Index       = index + 1,
+                    TextContent = chunk.TextContent,
+                    WordCount   = chunk.TextContent?.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length ?? 0
+                });
         }
 
         private static DocumentDto ToDto(Document d) => new DocumentDto

@@ -56,5 +56,12 @@ namespace RagChatbot.DAL.Repositories.Implements
                 _context.SaveChanges();
             }
         }
+
+        public bool ExistsByFileName(Guid subjectId, string fileName)
+        {
+            return _context.Documents.Any(d =>
+                d.SubjectId == subjectId &&
+                d.FileName == fileName);
+        }
     }
 }

@@ -63,9 +63,25 @@ namespace RagChatbot.BLL.Services.Implements
             });
         }
 
-        public void Assign(int userId, Guid subjectId)
+        public const int MaxTeachersPerSubject = 3;
+
+        public int CountTeachersInSubject(Guid subjectId)
         {
+            return _userSubjectRepository.GetUsersBySubjectId(subjectId)
+                .Count(u => u.Role == "Lecturer" || u.Role == "Admin");
+        }
+
+        public AssignResult Assign(int userId, Guid subjectId)
+        {
+            var user = _userRepository.GetAll().FirstOrDefault(u => u.Id == userId);
+            if (user != null && (user.Role == "Lecturer" || user.Role == "Admin"))
+            {
+                if (CountTeachersInSubject(subjectId) >= MaxTeachersPerSubject)
+                    return AssignResult.TeacherLimitReached;
+            }
+
             _userSubjectRepository.Assign(userId, subjectId);
+            return AssignResult.Success;
         }
 
         public void Remove(int userId, Guid subjectId)

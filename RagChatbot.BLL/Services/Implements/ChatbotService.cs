@@ -1,7 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Pgvector.EntityFrameworkCore;
 using RagChatbot.BLL.Services.Interfaces;
-using RagChatbot.DAL.Data;
+using RagChatbot.DAL.Repositories.Interfaces;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,12 +8,12 @@ namespace RagChatbot.BLL.Services.Implements
 {
     public class ChatbotService : IChatbotService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IDocumentChunkRepository _chunkRepository;
         private readonly IAIService _aiService;
 
-        public ChatbotService(ApplicationDbContext context, IAIService aiService)
+        public ChatbotService(IDocumentChunkRepository chunkRepository, IAIService aiService)
         {
-            _context = context;
+            _chunkRepository = chunkRepository;
             _aiService = aiService;
         }
 
@@ -24,28 +22,19 @@ namespace RagChatbot.BLL.Services.Implements
             try
             {
                 // 1. Nhúng câu hỏi thành Vector 768 chiều
-                float[] questionVectorArray = await _aiService.GenerateEmbeddingAsync(userMessage);
-                var queryVector = new Pgvector.Vector(questionVectorArray);
+                float[] questionVector = await _aiService.GenerateEmbeddingAsync(userMessage);
 
-                // 2. Truy vấn Database lấy 3 đoạn tài liệu khớp nhất
-                var similarChunks = await _context.DocumentChunks
-                    .Include(c => c.Document)
-                    .Where(c => c.Document.SubjectId == subjectId)
-                    .OrderBy(c => c.Embedding.CosineDistance(queryVector))
-                    .Take(3)
-                    .Select(c => c.TextContent)
-                    .ToListAsync();
+                // 2. Tìm 3 đoạn văn bản gần nhất trong phạm vi môn học
+                var similarChunks = (await _chunkRepository.SearchSimilarChunksAsync(subjectId, questionVector, topK: 3))
+                    .ToList();
 
                 if (!similarChunks.Any())
-                {
                     return "Môn học này hiện chưa có tài liệu nào. Vui lòng upload tài liệu trước khi hỏi.";
-                }
 
-                // 3. Ghép tài liệu thành Context
+                // 3. Ghép context và gọi AI
                 string contextText = string.Join("\n\n---\n\n", similarChunks);
-
-                // 4. Tạo Prompt và gọi AI
                 string finalPrompt = $"TÀI LIỆU CUNG CẤP:\n{contextText}\n\nCÂU HỎI CỦA NGƯỜI DÙNG:\n{userMessage}";
+
                 return await _aiService.GenerateChatResponseAsync(finalPrompt);
             }
             catch (Exception ex)

@@ -487,9 +487,10 @@ $RECYCLE.BIN/
 # Uploaded documents (user files)
 **/wwwroot/uploads/
 
-# Sensitive config (copy appsettings.json.example for team)
-# appsettings.json     <- uncomment if you store secrets here
+# Sensitive config (copy appsettings.example.json and fill in secrets)
+appsettings.json
 appsettings.*.json
+!appsettings.example.json
 !appsettings.Development.json
 
 # Gemini API keys & secrets

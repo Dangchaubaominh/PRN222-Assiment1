@@ -18,22 +18,26 @@
             </div>
 
             <form asp-action="Create" method="post">
+
                 <div style="margin-bottom:16px">
                     <label asp-for="FullName" class="form-label-app">Họ và tên</label>
                     <input asp-for="FullName" class="form-control-app" placeholder="VD: Nguyễn Văn A" />
                     <span asp-validation-for="FullName" class="field-error"></span>
                 </div>
+
                 <div style="margin-bottom:16px">
                     <label asp-for="Username" class="form-label-app">Tên đăng nhập</label>
                     <input asp-for="Username" class="form-control-app" placeholder="VD: nguyenvana" />
                     <span asp-validation-for="Username" class="field-error"></span>
                 </div>
+
                 <div style="margin-bottom:16px">
                     <label asp-for="Password" class="form-label-app">Mật khẩu</label>
                     <input asp-for="Password" type="password" class="form-control-app" placeholder="Nhập mật khẩu" />
                     <span asp-validation-for="Password" class="field-error"></span>
                 </div>
-                <div style="margin-bottom:24px">
+
+                <div style="margin-bottom:16px">
                     <label asp-for="Role" class="form-label-app">Vai trò</label>
                     <select asp-for="Role" class="form-control-app">
                         <option value="">— Chọn vai trò —</option>
@@ -43,6 +47,25 @@
                     </select>
                     <span asp-validation-for="Role" class="field-error"></span>
                 </div>
+
+                <!-- Email (bắt buộc) -->
+                <div style="margin-bottom:24px">
+                    <label asp-for="Email" class="form-label-app">Gmail người dùng</label>
+                    <div style="position:relative">
+                        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-3);font-size:16px;pointer-events:none">
+                            <i class="bi bi-envelope"></i>
+                        </span>
+                        <input asp-for="Email" type="email" class="form-control-app"
+                               style="padding-left:38px"
+                               placeholder="VD: nguyenvana@gmail.com" />
+                    </div>
+                    <span asp-validation-for="Email" class="field-error"></span>
+                    <div class="email-hint">
+                        <i class="bi bi-send-check"></i>
+                        Hệ thống sẽ tự động gửi thông tin tài khoản & mật khẩu đến Gmail này.
+                    </div>
+                </div>
+
                 <div style="display:flex;gap:10px">
                     <button type="submit" class="btn-app btn-primary-app">
                         <i class="bi bi-person-plus"></i> Tạo tài khoản
@@ -55,3 +78,21 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+<style>
+.email-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-3);
+    padding: 8px 12px;
+    background: rgba(99,102,241,.06);
+    border-radius: 8px;
+    border-left: 3px solid var(--primary);
+}
+.email-hint i { color: var(--primary); flex-shrink: 0; }
+</style>
+}

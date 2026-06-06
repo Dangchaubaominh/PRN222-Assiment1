@@ -5,10 +5,13 @@ using RagChatbot.DAL.Entities;
 using RagChatbot.DAL.Repositories.Interfaces;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UglyToad.PdfPig;
 using Pgvector;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace RagChatbot.BLL.Services.Implements
 {
@@ -48,30 +51,39 @@ namespace RagChatbot.BLL.Services.Implements
                 {
                     fullText = ExtractTextFromPdf(physicalPath);
                 }
+                else if (extension == ".docx" || extension == ".doc")
+                {
+                    fullText = ExtractTextFromDocx(physicalPath);
+                }
                 else
                 {
                     return false; // Định dạng chưa hỗ trợ
                 }
 
-                // 3. Băm nhỏ văn bản (Mỗi chunk khoảng 300 từ)
-                var chunks = TextChunker.SplitText(fullText, chunkSize: 300, overlapSize: 50);
+                // 3. Semantic Chunking: chia văn bản theo ranh giới đoạn văn / câu
+                //    (không bao giờ cắt giữa câu, overlap theo câu thay vì từ)
+                var chunks = SemanticChunker.SplitText(fullText,
+                                                       maxWordsPerChunk: 400,
+                                                       overlapSentences:  2);
 
-                // 4. Gọi AI chuyển chữ thành Vector số
+                // 4. Gọi AI chuyển từng chunk thành Vector embedding 768 chiều
+                doc.Status = DocumentStatus.Processing;
+                await _context.SaveChangesAsync();
+
                 foreach (var chunk in chunks)
                 {
                     float[] vectorArray = await _aiService.GenerateEmbeddingAsync(chunk);
                     var docChunk = new DocumentChunk
                     {
-                        Id = Guid.NewGuid(),
-                        DocumentId = documentId,
+                        Id          = Guid.NewGuid(),
+                        DocumentId  = documentId,
                         TextContent = chunk,
-                        // Phép thuật của pgvector: Biến mảng float[] thành kiểu Vector
-                        Embedding = new Vector(vectorArray)
+                        Embedding   = new Vector(vectorArray)
                     };
-
-                    _context.DocumentChunks.Add(docChunk); // Đưa vào hàng đợi lưu
-                    doc.Status = DocumentStatus.Completed;
+                    _context.DocumentChunks.Add(docChunk);
                 }
+
+                doc.Status = DocumentStatus.Completed;
                 await _context.SaveChangesAsync();
 
                 return true;
@@ -82,21 +94,31 @@ namespace RagChatbot.BLL.Services.Implements
             }
         }
 
-        // Hàm hỗ trợ chuyên móc nội dung từ PDF
         private string ExtractTextFromPdf(string filePath)
         {
-            StringBuilder textBuilder = new StringBuilder();
-
-            // Dùng PdfPig mở file
+            var sb = new StringBuilder();
             using (PdfDocument document = PdfDocument.Open(filePath))
             {
-                // Lặp qua từng trang để gom chữ
                 foreach (var page in document.GetPages())
-                {
-                    textBuilder.AppendLine(page.Text);
-                }
+                    sb.AppendLine(page.Text);
             }
-            return textBuilder.ToString();
+            return sb.ToString();
+        }
+
+        private string ExtractTextFromDocx(string filePath)
+        {
+            var sb = new StringBuilder();
+            using var wordDoc = WordprocessingDocument.Open(filePath, isEditable: false);
+            var body = wordDoc.MainDocumentPart?.Document?.Body;
+            if (body == null) return string.Empty;
+
+            foreach (var para in body.Descendants<Paragraph>())
+            {
+                string line = para.InnerText.Trim();
+                if (line.Length > 0)
+                    sb.AppendLine(line);
+            }
+            return sb.ToString();
         }
     }
 }

@@ -1,0 +1,72 @@
+@{
+    ViewData["Title"] = "Seed Tài Liệu IT";
+    var subjects = ViewBag.Subjects as List<RagChatbot.BLL.DTOs.SubjectDto> ?? new();
+}
+
+<div class="page-header fade-in-up">
+    <div class="page-header-left">
+        <h1>🌱 Seed Tài Liệu IT</h1>
+        <p>Tự động tạo tài liệu IT cho tất cả môn học trong hệ thống</p>
+    </div>
+</div>
+
+<div class="table-card fade-in-up" style="max-width:680px">
+    <div style="padding:24px">
+
+        <div style="display:flex;align-items:flex-start;gap:12px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-left:4px solid #f59e0b;border-radius:10px;padding:14px 16px;margin-bottom:24px">
+            <i class="bi bi-exclamation-triangle-fill" style="color:#f59e0b;font-size:18px;flex-shrink:0;margin-top:1px"></i>
+            <div style="font-size:13px;color:var(--text-2);line-height:1.7">
+                <strong style="color:var(--text-1)">Lưu ý trước khi chạy:</strong><br>
+                Hệ thống sẽ tạo <strong>3 tài liệu IT</strong> cho mỗi môn học và gọi <strong>Gemini API</strong> để tạo embedding.
+                Đảm bảo <code>Gemini:ApiKey</code> đã được cấu hình trong <code>appsettings.json</code>.
+                Quá trình có thể mất vài phút tùy số lượng môn học.
+            </div>
+        </div>
+
+        @if (!subjects.Any())
+        {
+            <div class="empty-state" style="padding:32px 0">
+                <span class="empty-icon"><i class="bi bi-book-x"></i></span>
+                <div class="empty-title">Chưa có môn học nào</div>
+                <div class="empty-sub">Hãy tạo môn học trước khi seed tài liệu.</div>
+                <a asp-controller="Subject" asp-action="Create" class="btn-app btn-primary-app" style="margin-top:12px">
+                    <i class="bi bi-plus-lg"></i> Tạo môn học
+                </a>
+            </div>
+        }
+        else
+        {
+            <div style="margin-bottom:20px">
+                <div style="font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">Môn học sẽ nhận tài liệu</div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                    @foreach (var s in subjects)
+                    {
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--surface-3);border-radius:8px">
+                            <div style="display:flex;align-items:center;gap:10px">
+                                <span style="background:var(--primary);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px">@s.Code</span>
+                                <span style="font-size:13px;color:var(--text-1)">@s.Name</span>
+                            </div>
+                            <span style="font-size:12px;color:var(--text-3)">3 tài liệu</span>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(99,102,241,.08);border-radius:8px;margin-bottom:20px">
+                <i class="bi bi-file-earmark-text" style="color:var(--primary);font-size:20px"></i>
+                <div>
+                    <div style="font-size:14px;font-weight:700;color:var(--text-1)">Tổng cộng @ViewBag.DocCount tài liệu</div>
+                    <div style="font-size:12px;color:var(--text-3)">9 chủ đề IT: ML, DSA, OOP, Security, Database, Cloud, Web, Git, Networking</div>
+                </div>
+            </div>
+
+            <form asp-action="Run" method="post">
+                <button type="submit" class="btn-app btn-primary-app" style="width:100%;justify-content:center;padding:12px"
+                        onclick="this.disabled=true;this.innerHTML='<i class=\'bi bi-hourglass-split\'></i> Đang xử lý... (vui lòng chờ)';this.form.submit()">
+                    <i class="bi bi-play-fill"></i> Bắt đầu Seed tài liệu
+                </button>
+            </form>
+        }
+
+    </div>
+</div>

@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RagChatbot.BLL.Services.Implements;
 using RagChatbot.BLL.Services.Interfaces;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 
 namespace RagChatbot.MVC.Controllers
@@ -52,25 +55,41 @@ namespace RagChatbot.MVC.Controllers
             var addableUsers = _userSubjectService.GetAddableUsers(subjectId, requesterRole);
 
             ViewBag.Subject = subject;
+            ViewBag.TeacherCount = _userSubjectService.CountTeachersInSubject(subjectId);
+            ViewBag.TeacherLimit = UserSubjectService.MaxTeachersPerSubject;
             return View(addableUsers);
         }
 
-        // Thực hiện gán thành viên
+        // Thêm nhiều thành viên cùng lúc
         [HttpPost]
-        public IActionResult Add(Guid subjectId, int userId)
+        public IActionResult Add(Guid subjectId, List<int> selectedUserIds)
         {
-            // Lecturer chỉ được thêm Student
+            if (selectedUserIds == null || selectedUserIds.Count == 0)
+                return RedirectToAction("Add", new { subjectId });
+
             if (User.IsInRole("Lecturer"))
             {
-                var addable = _userSubjectService.GetAddableUsers(subjectId, "Lecturer");
-                bool allowed = false;
-                foreach (var u in addable)
-                    if (u.Id == userId) { allowed = true; break; }
-
-                if (!allowed) return Forbid();
+                var allowedIds = _userSubjectService.GetAddableUsers(subjectId, "Lecturer")
+                                                    .Select(u => u.Id).ToHashSet();
+                if (!selectedUserIds.All(id => allowedIds.Contains(id)))
+                    return Forbid();
             }
 
-            _userSubjectService.Assign(userId, subjectId);
+            int added = 0, limitBlocked = 0;
+            foreach (var userId in selectedUserIds)
+            {
+                var result = _userSubjectService.Assign(userId, subjectId);
+                if (result == AssignResult.Success) added++;
+                else if (result == AssignResult.TeacherLimitReached) limitBlocked++;
+            }
+
+            if (limitBlocked > 0 && added == 0)
+                TempData["ErrorMessage"] = $"Không thể thêm: môn học đã đạt tối đa {UserSubjectService.MaxTeachersPerSubject} giảng viên.";
+            else if (limitBlocked > 0)
+                TempData["WarningMessage"] = $"Đã thêm {added} thành viên. {limitBlocked} giảng viên bị từ chối vì môn học đã đạt giới hạn {UserSubjectService.MaxTeachersPerSubject} giảng viên.";
+            else
+                TempData["SuccessMessage"] = $"Đã thêm {added} thành viên vào môn học.";
+
             return RedirectToAction("Index", new { subjectId });
         }
 
@@ -90,6 +109,7 @@ namespace RagChatbot.MVC.Controllers
             }
 
             _userSubjectService.Remove(userId, subjectId);
+            TempData["SuccessMessage"] = "Đã xóa thành viên khỏi môn học.";
             return RedirectToAction("Index", new { subjectId });
         }
     }

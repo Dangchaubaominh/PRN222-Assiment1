@@ -22,9 +22,11 @@ namespace RagChatbot.BLL.Extensions
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ISubjectRepository, SubjectRepository>();
             services.AddScoped<IDocumentRepository, DocumentRepository>();
+            services.AddScoped<IDocumentChunkRepository, DocumentChunkRepository>();
             services.AddScoped<IUserSubjectRepository, UserSubjectRepository>();
 
             // 3. Đăng ký Services (BLL)
+            services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ISubjectService, SubjectService>();
             services.AddScoped<IDocumentService, DocumentService>();

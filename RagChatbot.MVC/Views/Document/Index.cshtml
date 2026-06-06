@@ -28,19 +28,6 @@
     </div>
 </div>
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert-app alert-success-app fade-in-up">
-        <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
-    </div>
-}
-@if (TempData["WarningMessage"] != null)
-{
-    <div class="alert-app alert-warning-app fade-in-up">
-        <i class="bi bi-exclamation-triangle-fill"></i> @TempData["WarningMessage"]
-    </div>
-}
-
 @if (!Model.Any())
 {
     <div class="table-card">
